@@ -6,14 +6,12 @@ class MyBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      margin: EdgeInsets.only(top: 0),
+      padding: EdgeInsets.all(15),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Image.asset(
-          'assets/header-images/banner.jpg',
+          'assets/header-images/banner2.jpg',
           fit: BoxFit.cover,
         ),
       ),

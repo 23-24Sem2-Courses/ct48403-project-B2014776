@@ -1,9 +1,9 @@
+import 'package:ct484_project/ui/bottombar.dart';
 import 'package:flutter/material.dart';
 
 class MyProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    const String appTitle = 'Flutter layout demo';
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -23,278 +23,214 @@ class MyProduct extends StatelessWidget {
             height: 24,
           ),
           onPressed: () {
-            // Xử lý khi icon được nhấn
+            // Handle when the icon is pressed
           },
         ),
       ),
-      // #docregion addWidget
-      body: const SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Column(
           children: [
-            const Image(
+            Image(
               image: NetworkImage(
-                'https://www.bhphotovideo.com/images/images2500x2500/hp_2gw59ua_aba_i7_7500u_8gb_1tb_windows_1362830.jpg',
+                'https://www.bhphotovideo.com/images/images2500x2500/asus_k570ud_ds74_i7_8550u_8gb_1tb_256ssd_1405516.jpg',
               ),
             ),
             TitleSection(
-              name: 'Oeschinen Lake Campground',
-              location: 'Kandersteg, Switzerland',
+              name: 'LAPTOP HP2GW59',
             ),
-            ButtonSection(),
+            Price(price: '27.000.00'),
             TextSection(
               description:
-                  'Lake Oeschinen lies at the foot of the Blüemlisalp in the '
-                  'Bernese Alps. Situated 1,578 meters above sea level, it '
-                  'is one of the larger Alpine Lakes. A gondola ride from '
-                  'Kandersteg, followed by a half-hour walk through pastures '
-                  'and pine forest, leads you to the lake, which warms to 20 '
                   'degrees Celsius in the summer. Activities enjoyed here '
-                  'include rowing, and riding the summer toboggan run.',
+                  'include rowing, and riding the summer toboggan run.'
+                  'djajkdkaaldla'
+                  'djakldlaladaaa;da;dakaa;d;da'
+                  'djakkadalkadjdakdjkjdafjakllkafllala'
+                  'jksjkfjkakklakfjfhfjkakfjfhjfkakfkhsjsfkjk'
+                  'dkaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                IncrementDecrementButtons(),
+                SizedBox(width: 20), // Add spacing between buttons
+                AddToCartButton(),
+              ],
+            ),
+            
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        iconSize: 20,
-        items: [
-          BottomNavigationBarItem(
-            icon: Image.asset(
-              'assets/header-images/homelogo.png',
-              width:
-                  24, // Điều chỉnh kích thước biểu tượng theo nhu cầu của bạn
-              height: 24,
-            ),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Image.asset(
-              'assets/header-images/Fvrlogo.png',
-              width:
-                  24, // Điều chỉnh kích thước biểu tượng theo nhu cầu của bạn
-              height: 24,
-            ),
-            label: "Favorites",
-          ),
-          BottomNavigationBarItem(
-              icon: Image.asset(
-                'assets/header-images/shopinglogo.png',
-                width:
-                    24, // Điều chỉnh kích thước biểu tượng theo nhu cầu của bạn
-                height: 24,
-              ),
-              label: "Shopping"),
-          BottomNavigationBarItem(
-              icon: Image.asset(
-                'assets/header-images/editicon.png',
-                width:
-                    24, // Điều chỉnh kích thước biểu tượng theo nhu cầu của bạn
-                height: 24,
-              ),
-              label: "Edit"),
-        ],
-      ),
-      // #enddocregion addWidget
+      bottomNavigationBar: BottomBar(),
     );
   }
 }
 
 class TitleSection extends StatelessWidget {
   const TitleSection({
-    super.key,
+    Key? key,
     required this.name,
-    required this.location,
-  });
+  }) : super(key: key);
 
   final String name;
-  final String location;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(5),
       child: Row(
         children: [
           Expanded(
-            /*1*/
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /*2*/
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.only(bottom: 0),
                   child: Text(
                     name,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
+                      fontSize: 20,
                     ),
-                  ),
-                ),
-                Text(
-                  location,
-                  style: TextStyle(
-                    color: Colors.grey[500],
                   ),
                 ),
               ],
             ),
           ),
-          /*3*/
-          // #docregion Icon
-          Icon(
-            Icons.star,
-            color: Colors.red[500],
-          ),
-          // #enddocregion Icon
-          const Text('41'),
         ],
       ),
     );
   }
 }
 
-class ButtonSection extends StatelessWidget {
-  const ButtonSection({super.key});
+class Price extends StatelessWidget {
+  const Price({
+    Key? key,
+    required this.price,
+  }) : super(key: key);
+
+  final String price;
 
   @override
   Widget build(BuildContext context) {
-    final Color color = Theme.of(context).primaryColor;
-    return SizedBox(
+    return Padding(
+      padding: const EdgeInsets.all(5),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          ButtonWithText(
-            color: color,
-            icon: Icons.call,
-            label: 'CALL',
-          ),
-          ButtonWithText(
-            color: color,
-            icon: Icons.near_me,
-            label: 'ROUTE',
-          ),
-          ButtonWithText(
-            color: color,
-            icon: Icons.share,
-            label: 'SHARE',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ButtonWithText extends StatelessWidget {
-  const ButtonWithText({
-    super.key,
-    required this.color,
-    required this.icon,
-    required this.label,
-  });
-
-  final Color color;
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, color: color),
-        Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              color: color,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 0),
+                  child: Text(
+                    '$price\đ',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
 class TextSection extends StatelessWidget {
   const TextSection({
-    super.key,
+    Key? key,
     required this.description,
-  });
+  }) : super(key: key);
 
   final String description;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(5),
       child: Text(
         description,
+        style: TextStyle(
+          fontSize: 18,
+        ),
         softWrap: true,
       ),
     );
   }
 }
 
-class FavoriteWidget extends StatefulWidget {
-  const FavoriteWidget({super.key});
+class IncrementDecrementButtons extends StatefulWidget {
+  const IncrementDecrementButtons({Key? key}) : super(key: key);
 
   @override
-  State<FavoriteWidget> createState() => _FavoriteWidgetState();
+  _IncrementDecrementButtonsState createState() =>
+      _IncrementDecrementButtonsState();
 }
-// #enddocregion FavoriteWidget
 
-// #docregion _FavoriteWidgetState, _FavoriteWidgetState-fields, _FavoriteWidgetState-build
-class _FavoriteWidgetState extends State<FavoriteWidget> {
-  // #enddocregion _FavoriteWidgetState-build
-  bool _isFavorited = true;
-  int _favoriteCount = 41;
+class _IncrementDecrementButtonsState extends State<IncrementDecrementButtons> {
+  int _counter = 0;
 
-  // #enddocregion _FavoriteWidgetState-fields
-
-  // #docregion _toggleFavorite
-  void _toggleFavorite() {
+  void _increment() {
     setState(() {
-      if (_isFavorited) {
-        _favoriteCount -= 1;
-        _isFavorited = false;
-      } else {
-        _favoriteCount += 1;
-        _isFavorited = true;
+      _counter++;
+    });
+  }
+
+  void _decrement() {
+    setState(() {
+      if (_counter > 0) {
+        _counter--;
       }
     });
   }
 
-  // #enddocregion _toggleFavorite
-
-  // #docregion _FavoriteWidgetState-build
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Container(
-          padding: const EdgeInsets.all(0),
-          child: IconButton(
-            padding: const EdgeInsets.all(0),
-            alignment: Alignment.centerRight,
-            icon: (_isFavorited
-                ? const Icon(Icons.star)
-                : const Icon(Icons.star_border)),
-            color: Colors.red[500],
-            onPressed: _toggleFavorite,
-          ),
+        IconButton(
+          icon: Icon(Icons.remove),
+          onPressed: _decrement,
         ),
-        SizedBox(
-          width: 18,
-          child: SizedBox(
-            child: Text('$_favoriteCount'),
-          ),
+        Text(
+          '$_counter',
+          style: TextStyle(fontSize: 20),
+        ),
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: _increment,
         ),
       ],
     );
   }
 }
+
+class AddToCartButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        // Add product to cart
+        // You can access the quantity from _counter
+      },
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        primary: Colors.black, // Màu nền của button
+      ),
+      child: Text(
+        'Thêm sản phẩm',
+        style: TextStyle(fontSize: 16, color: Colors.white), // Màu văn bản của button
+      ),
+    );
+  }
+}
+
+

@@ -13,7 +13,7 @@ class MyTag extends StatelessWidget {
         
       child: Row(
         children: [
-          SizedBox(width: 10), // Khoảng cách từ lề trái của container
+          SizedBox(width: 15), // Khoảng cách từ lề trái của container
           Expanded(
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,

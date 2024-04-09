@@ -1,10 +1,14 @@
+import 'package:ct484_project/ui/bottombar.dart';
 import 'package:ct484_project/ui/home/Appbar.dart';
 import 'package:ct484_project/ui/home/MySearchBar.dart';
 import 'package:ct484_project/ui/home/Mytags.dart';
 import 'package:ct484_project/ui/home/banner.dart';
+import 'package:ct484_project/ui/home/homecart.dart';
 import 'package:ct484_project/ui/home/product/card.dart';
 import 'package:ct484_project/ui/home/product/productList.dart';
 import 'package:flutter/material.dart';
+
+
 
 class Screens extends StatelessWidget {
   @override
@@ -14,62 +18,52 @@ class Screens extends StatelessWidget {
         preferredSize: Size.fromHeight(44.0), // Đặt chiều cao cho AppBar
         child: MyAppBar(),
       ),
-      body: const Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: 16.0), // Lề trái và lề phải là 16.0
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            MySearchBar(),
-            MyBanner(),
-            MyTag(),
-            Expanded(child: ProductList())
-          ],
+      body: Padding(
+        padding:
+            EdgeInsets.symmetric(horizontal: 0.0), // Lề trái và lề phải là 16.0
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              MySearchBar(),
+           
+              MyBanner(),
+              
+            
+                 
+              HomeCard(
+                imagePath:
+                    'assets/header-images/nenphone.png', // Đường dẫn đến hình ảnh cho thẻ 1
+                onPressed: () {
+                  // Xử lý khi thẻ 1 được nhấn
+                },
+              ),
+              HomeCard(
+                imagePath:
+                    'assets/header-images/nenlap.png', // Đường dẫn đến hình ảnh cho thẻ 2
+                onPressed: () {
+                  // Xử lý khi thẻ 2 được nhấn
+                },
+              ),
+              HomeCard(
+                imagePath:
+                    'assets/header-images/nendevices.png', // Đường dẫn đến hình ảnh cho thẻ 2
+                onPressed: () {
+                  // Xử lý khi thẻ 2 được nhấn
+                },
+              ), // Thêm các thẻ khác tương tự ở đây
+            
+              
+              // HomeCardPage(),
+            ],
+          ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        iconSize: 20,
-        items: [
-          BottomNavigationBarItem(
-            icon: Image.asset(
-              'assets/header-images/homelogo.png',
-              width:
-                  24, // Điều chỉnh kích thước biểu tượng theo nhu cầu của bạn
-              height: 24,
-            ),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Image.asset(
-              'assets/header-images/Fvrlogo.png',
-              width:
-                  24, // Điều chỉnh kích thước biểu tượng theo nhu cầu của bạn
-              height: 24,
-            ),
-            label: "Favorites",
-          ),
-          BottomNavigationBarItem(
-              icon: Image.asset(
-                'assets/header-images/shopinglogo.png',
-                width:
-                    24, // Điều chỉnh kích thước biểu tượng theo nhu cầu của bạn
-                height: 24,
-              ),
-              label: "Shopping"),
-          BottomNavigationBarItem(
-              icon: Image.asset(
-                'assets/header-images/editicon.png',
-                width:
-                    24, // Điều chỉnh kích thước biểu tượng theo nhu cầu của bạn
-                height: 24,
-              ), 
-              label: "Edit"),
-        ],
-      ),
+      bottomNavigationBar: BottomBar(),
     );
   }
 }
+
 
 class Mycard extends StatelessWidget {
   const Mycard({super.key});

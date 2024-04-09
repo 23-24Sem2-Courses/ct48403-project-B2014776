@@ -1,4 +1,5 @@
 import 'package:ct484_project/ui/account/loginScreen.dart';
+import 'package:ct484_project/ui/home/homecart.dart';
 import 'package:ct484_project/ui/product/product-screen.dart';
 import 'package:ct484_project/ui/home/screens-ui.dart';
 import 'package:ct484_project/ui/splash.dart';
@@ -16,8 +17,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(debugShowCheckedModeBanner: false,
       title: 'PT DEVICE SHOP',
-      // home: Screens(),
-      home: MyProduct(), // Chỉ định HomeUI là trang chính của ứng dụng
+      home: Screens(),
+      // home: HomeCardPage(),
+      //home: MyProduct(), // Chỉ định HomeUI là trang chính của ứng dụng
     );
   }
 }

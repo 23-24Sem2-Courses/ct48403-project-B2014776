@@ -20,3 +20,19 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/header-images/logo.jpg
+    - assets/header-images/banner.jpg
+    - assets/header-images/iconFvr.png
+    - assets/header-images/iconGiohang.png
+    - assets/header-images/homelogo.png
+    - assets/header-images/Fvrlogo.png
+    - assets/header-images/shopinglogo.png
+    - assets/header-images/editicon.png
+    - assets/header-images/backicon.png
+    - assets/header-images/addcart.png
+    - assets/header-images/banner2.jpg
+    - assets/header-images/nendevices.png
+    - assets/header-images/nenlap.png
+    - assets/header-images/nenphone.png
+   
