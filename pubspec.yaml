@@ -37,4 +37,6 @@ flutter:
     - assets/header-images/nenphone.png
     - assets/header-images/minus.png
     - assets/header-images/add.png
+    - assets/header-images/avatar.jpg
+    - assets/header-images/logout.png
    
