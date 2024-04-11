@@ -39,6 +39,17 @@ class MyProduct extends StatelessWidget {
               name: 'LAPTOP HP2GW59',
             ),
             Price(price: '27.000.00'),
+            
+            Row(
+              
+              mainAxisAlignment: MainAxisAlignment.start,
+            
+              children: [
+                IncrementDecrementButtons(),
+                SizedBox(width: 20), // Add spacing between buttons
+                
+              ],
+            ),
             TextSection(
               description:
                   'degrees Celsius in the summer. Activities enjoyed here '
@@ -48,20 +59,13 @@ class MyProduct extends StatelessWidget {
                   'djakkadalkadjdakdjkjdafjakllkafllala'
                   'jksjkfjkakklakfjfhfjkakfjfhjfkakfkhsjsfkjk'
                   'dkaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-                  
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                IncrementDecrementButtons(),
-                SizedBox(width: 20), // Add spacing between buttons
-                AddToCartButton(),
-              ],
-            ),
-            
+            )
           ],
         ),
       ),
+      
+      
+      
       bottomNavigationBar: BottomBar(),
     );
   }
@@ -78,7 +82,7 @@ class TitleSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(5),
+      padding: const EdgeInsets.all(10),
       child: Row(
         children: [
           Expanded(
@@ -115,7 +119,7 @@ class Price extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(5),
+      padding: const EdgeInsets.all(10),
       child: Row(
         children: [
           Expanded(
@@ -152,7 +156,7 @@ class TextSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(5),
+      padding: const EdgeInsets.all(10),
       child: Text(
         description,
         style: TextStyle(
@@ -210,27 +214,3 @@ class _IncrementDecrementButtonsState extends State<IncrementDecrementButtons> {
     );
   }
 }
-
-class AddToCartButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        // Add product to cart
-        // You can access the quantity from _counter
-      },
-      style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        primary: Colors.black, // Màu nền của button
-      ),
-      child: Text(
-        'Thêm sản phẩm',
-        style: TextStyle(fontSize: 16, color: Colors.white), // Màu văn bản của button
-      ),
-    );
-  }
-}
-
-

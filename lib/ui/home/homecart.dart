@@ -35,7 +35,11 @@ class HomeCardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return 
       Container(
-        child: ListView(
+        child:
+        
+        
+        
+         ListView(
           children: [
             HomeCard(
               imagePath:

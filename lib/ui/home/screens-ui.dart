@@ -1,14 +1,10 @@
 import 'package:ct484_project/ui/bottombar.dart';
 import 'package:ct484_project/ui/home/Appbar.dart';
 import 'package:ct484_project/ui/home/MySearchBar.dart';
-import 'package:ct484_project/ui/home/Mytags.dart';
 import 'package:ct484_project/ui/home/banner.dart';
 import 'package:ct484_project/ui/home/homecart.dart';
 import 'package:ct484_project/ui/home/product/card.dart';
-import 'package:ct484_project/ui/home/product/productList.dart';
 import 'package:flutter/material.dart';
-
-
 
 class Screens extends StatelessWidget {
   @override
@@ -26,11 +22,9 @@ class Screens extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               MySearchBar(),
-           
+
               MyBanner(),
-              
-            
-                 
+
               HomeCard(
                 imagePath:
                     'assets/header-images/nenphone.png', // Đường dẫn đến hình ảnh cho thẻ 1
@@ -52,8 +46,7 @@ class Screens extends StatelessWidget {
                   // Xử lý khi thẻ 2 được nhấn
                 },
               ), // Thêm các thẻ khác tương tự ở đây
-            
-              
+
               // HomeCardPage(),
             ],
           ),
@@ -63,7 +56,6 @@ class Screens extends StatelessWidget {
     );
   }
 }
-
 
 class Mycard extends StatelessWidget {
   const Mycard({super.key});
