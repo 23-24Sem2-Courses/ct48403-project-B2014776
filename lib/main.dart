@@ -1,5 +1,8 @@
 import 'package:ct484_project/ui/account/loginScreen.dart';
+import 'package:ct484_project/ui/admin/addproduct.dart';
+// import 'package:ct484_project/ui/admin/addProduct.dart';
 import 'package:ct484_project/ui/admin/admin.dart';
+import 'package:ct484_project/ui/admin/editProduct.dart';
 import 'package:ct484_project/ui/cart/cart.dart';
 import 'package:ct484_project/ui/favorite/favorite.dart';
 import 'package:ct484_project/ui/home/homecart.dart';
@@ -17,6 +20,8 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key});
+  // Run đi
+  
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +31,13 @@ class MyApp extends StatelessWidget {
       //home: HomeCardPage(),
       //home: MyProduct(), // Chỉ định HomeUI là trang chính của ứng dụng
       //home: MyCart(),
-      //home: MyFavorite(),
+      // home: MyFavorite(),
       // home: ListProduct(),
       // home: MyAccout(),
-       home: AdminList(),
+        // home: AdminList(),
+        // home: AddProduct(),
+        //  home: EditProduct(),
+        home: AddProduct(),
       
     );
   }

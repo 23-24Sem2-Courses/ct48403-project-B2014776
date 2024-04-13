@@ -23,7 +23,7 @@ class Screens extends StatelessWidget {
             children: [
               MySearchBar(),
 
-              MyBanner(),
+              // MyBanner(),
 
               HomeCard(
                 imagePath:

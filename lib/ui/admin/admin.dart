@@ -34,7 +34,7 @@ class AdminList extends StatelessWidget {
               ),
               onPressed: () {
                 // Chuyển hướng sang một trang khác khi nhấn vào icon "edit"
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => LoginPage()),
                 );
