@@ -185,13 +185,26 @@ class _LoginPageContentState extends State<LoginPageContent> {
       Map<String, dynamic> loginData = await loginUser(email, password);
       String role=loginData["user"]["role"].toString();
       if(role=="admin"){
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login succes'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.green,
+          ),
+        );
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => AdminList()),
         );
         return;
       }
 
-
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Login succes'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.green,
+        ),
+      );
 
 
       Navigator.of(context).pushReplacement(

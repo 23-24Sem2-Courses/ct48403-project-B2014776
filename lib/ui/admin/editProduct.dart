@@ -5,12 +5,13 @@ import 'package:ct484_project/ui/home/Appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../model/category.dart';
 import '../../model/product.dart';
 
 class EditProduct extends StatelessWidget {
   final Product product;
 
-  const EditProduct({super.key, required this.product});
+  EditProduct({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +40,14 @@ class _AddPageContentState extends State<AddPageContent> {
   final TextEditingController _ProductController = TextEditingController();
   final TextEditingController _PriceController = TextEditingController();
   File? _Selectimage;
+  String? _selectedCategory;
 
+  void _handleCategorySelected(String? selectedCategory) {
+    setState(() {
+      _selectedCategory = selectedCategory;
+    });
+    // You can perform further actions with the selected category here
+  }
   @override
   void initState() {
     // TODO: implement initState
@@ -92,7 +100,9 @@ class _AddPageContentState extends State<AddPageContent> {
               ]),
             ),
 
-            ProductCategoryDropdown(),
+            ProductCategoryDropdown(
+          onCategorySelected: _handleCategorySelected,
+            ),
 
             ElevatedButton(
               onPressed: () {
@@ -165,14 +175,43 @@ class _AddPageContentState extends State<AddPageContent> {
 }
 
 class ProductCategoryDropdown extends StatefulWidget {
+  final void Function(String?) onCategorySelected;
+
+  const ProductCategoryDropdown({super.key, required this.onCategorySelected});
   @override
-  _ProductCategoryDropdownState createState() =>
-      _ProductCategoryDropdownState();
+  _ProductCategoryDropdownState createState() => _ProductCategoryDropdownState();
 }
 
 class _ProductCategoryDropdownState extends State<ProductCategoryDropdown> {
-  String? _selectedCategory;
 
+  String? _selectedCategory;
+  List<Category> _categories = [];
+
+  Future<void> _loadCategories() async {
+    try {
+      List<Category> categories = await Category.fetchCategories();
+      setState(() {
+        _categories = categories;
+      });
+    } catch (error) {
+      print('Error loading categories: $error');
+      // Handle error, e.g., show error message to user
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadCategories();
+  }
+  void _handleCategorySelected(String? newValue) {
+    setState(() {
+      _selectedCategory = newValue;
+    });
+    // Call the callback function to notify the parent widget
+    widget.onCategorySelected(newValue);
+  }
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -196,16 +235,15 @@ class _ProductCategoryDropdownState extends State<ProductCategoryDropdown> {
             ),
             value: _selectedCategory,
             onChanged: (String? newValue) {
-              setState(() {
-                _selectedCategory = newValue;
-              });
+
+              widget.onCategorySelected(newValue);
             },
-            items: <String>['Laptop', 'Phone', 'Devices'].map((String value) {
+            items: _categories.map((Category category) {
               return DropdownMenuItem<String>(
-                value: value,
+                value: category.id,
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16),
-                  child: Text(value),
+                  child: Text(category.name),
                 ),
               );
             }).toList(),
@@ -215,3 +253,4 @@ class _ProductCategoryDropdownState extends State<ProductCategoryDropdown> {
     );
   }
 }
+

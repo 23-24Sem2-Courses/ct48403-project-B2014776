@@ -7,11 +7,11 @@ import 'editProduct.dart';
 class AdminCard extends StatefulWidget {
   final Product product;
   final VoidCallback onPressed;
-
+  final Function(String) onDeleteSuccess;
   const AdminCard({
     Key? key,
     required this.product,
-    required this.onPressed,
+    required this.onPressed, required this.onDeleteSuccess,
   }) : super(key: key);
 
   @override
@@ -56,11 +56,13 @@ class _ProductCardState extends State<AdminCard> {
                         size: 24.0,
                       ),
                       onPressed: () {
+
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text("Bạn chắc chứ?"),
+                            return
+                              AlertDialog(
+                              title: Text("Are you sure"),
                               actions: [
                                 TextButton(
                                   onPressed: () {
@@ -74,6 +76,28 @@ class _ProductCardState extends State<AdminCard> {
                                       isClear = !isClear;
                                     });
                                     Navigator.of(context).pop();
+                                    try{
+                                    Product.deleteProductById(widget.product.id.toString());
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Delete success'),
+                                        duration: Duration(seconds: 2),
+                                        backgroundColor: Colors.green,
+                                      ),
+
+                                    );
+                                    widget.onDeleteSuccess(widget.product.id.toString());
+                                    }
+                                    catch (e){
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Delete failed'),
+                                          duration: Duration(seconds: 2),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+
                                   },
                                   child: Text("Yes"),
                                 ),
@@ -137,7 +161,7 @@ class _ProductCardState extends State<AdminCard> {
                           ),
                           IconButton(
                             icon: Icon(
-                              Icons.brush_outlined, 
+                              Icons.brush_outlined,
                               color: isEdit ? Colors.black : Colors.black,
                               size: 24,
                             ),

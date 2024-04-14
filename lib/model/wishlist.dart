@@ -1,72 +1,122 @@
 import 'dart:convert';
-import "package:http/http.dart" as http;
-import 'package:ct484_project/model/product.dart';
 
-class Wishlist {
-  final String userId;
-  final List<Product> products;
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+class User {
+  final String id;
+  final String username;
+  final String email;
+  final String password;
+  final String role;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-  Wishlist({
-    required this.userId,
-    required this.products,
+  User({
+    required this.id,
+    required this.username,
+    required this.email,
+    required this.password,
+    required this.role,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
-  factory Wishlist.fromJson(Map<String, dynamic> json) {
-    return Wishlist(
-      userId: json['user'],
-      products: (json['products'] as List<dynamic>)
-          .map((item) => Product.fromJson(item))
-          .toList(),
+  factory User.fromJson(Map<String, dynamic> json) {
+    switch (json.runtimeType) {
+      case const (Map<String, dynamic>):
+        return User(
+          id: json['_id'],
+          username: json['username'],
+          email: json['email'],
+          password: json['password'],
+          role: json['role'],
+          createdAt: DateTime.parse(json['createdAt']),
+          updatedAt: DateTime.parse(json['updatedAt']),
+        );
+      default:
+        throw FormatException('Invalid JSON type for User: ${json.runtimeType}');
+    }
+  }
+}
+
+
+
+Future<User> fetchUser()async{
+  const apiUrl="https://mobile-backend-v1.onrender.com/api/v1/users";
+  final response=await http.get(Uri.parse(apiUrl));
+  if(response.statusCode==200){
+    return User.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+  else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load user');
+  }
+}
+
+Future<Map<String, dynamic>> loginUser(String email, String password) async {
+  const apiUrl = "https://mobile-backend-v1.onrender.com/api/v1/users/login";
+  try {
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      body: jsonEncode({"email": email, "password": password}),
+      headers: {'Content-Type': 'application/json'},
     );
-  }
+    if (response.statusCode == 200) {
+      Map<String, dynamic> responseData = jsonDecode(response.body);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token_login', responseData['token']);
+      await prefs.setString('user', jsonEncode(responseData['user']));
+      return {
+        'user': responseData['user'],
+        'token': responseData['token'],
+      };
 
-  static Future<void> addToWishlist(String userId, String productId) async {
-    final apiUrl = '$baseUrl/addToWishlist'; // Replace with your API endpoint
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'userId': userId, 'productId': productId}),
-      );
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to add to wishlist: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Failed to add to wishlist: $e');
+
+
+    } else {
+      throw Exception('Failed to login: ${response.body}');
     }
+  } catch (e) {
+    // Handle exceptions or errors here
+    print('Error: $e');
+    throw Exception('Failed to login: $e');
   }
+}
 
-  static Future<void> removeFromWishlist(String userId, String productId) async {
-    final apiUrl = '$baseUrl/removeFromWishlist'; // Replace with your API endpoint
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'userId': userId, 'productId': productId}),
-      );
+Future<void> logout() async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove("token_login");
+  await prefs.remove("user");
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to remove from wishlist: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Failed to remove from wishlist: $e');
+}
+
+Future<Map<String, dynamic>> signUpUser(
+    String username, String email, String password) async {
+  const apiUrl =
+      "https://mobile-backend-v1.onrender.com/api/v1/users";
+  try {
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      body: jsonEncode({"username": username, "email": email, "password": password}),
+      headers: {'Content-Type': 'application/json'},
+    ).timeout(Duration(seconds: 10)); // Add timeout for the request
+
+    if (response.statusCode == 201) {
+      Map<String, dynamic> responseData = jsonDecode(response.body);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token_login', responseData['token']);
+      await prefs.setString('user', jsonEncode(responseData['user']));
+      return {
+        'user': User.fromJson(responseData['user']),
+        'token': responseData['token'],
+      };
+    } else {
+      throw Exception('Failed to sign up: ${response.body}');
     }
-  }
-
-  static Future<List<String>> getUserWishlist(String userId) async {
-    final apiUrl = '$baseUrl/getUserWishlist/$userId'; // Replace with your API endpoint
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
-
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        return List<String>.from(jsonData);
-      } else {
-        throw Exception('Failed to get user wishlist: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Failed to get user wishlist: $e');
-    }
+  } catch (e) {
+    print('Error: $e');
+    throw Exception('Failed to sign up: $e');
   }
 }

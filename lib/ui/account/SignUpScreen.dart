@@ -1,10 +1,8 @@
+import 'package:ct484_project/model/user.dart';
 import 'package:ct484_project/ui/account/component.dart';
 import 'package:flutter/material.dart';
 
-
 import 'loginScreen.dart';
-
-
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
@@ -12,13 +10,12 @@ class SignUpPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-
-      ),
+      appBar: AppBar(),
       body: SignUpPageContent(),
     );
   }
 }
+
 class SignUpPageContent extends StatefulWidget {
   const SignUpPageContent({super.key});
 
@@ -26,12 +23,10 @@ class SignUpPageContent extends StatefulWidget {
   _SignUpContentState createState() => _SignUpContentState();
 }
 
-class _SignUpContentState extends State< SignUpPageContent> {
-   final TextEditingController _emailSignupController = TextEditingController();
-  final TextEditingController _passwordSignupController = TextEditingController();
-
-
-
+class _SignUpContentState extends State<SignUpPageContent> {
+  final TextEditingController _emailSignupController = TextEditingController();
+  final TextEditingController _passwordSignupController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +43,6 @@ class _SignUpContentState extends State< SignUpPageContent> {
                 fontSize: 24,
                 height: 1.2,
                 fontWeight: FontWeight.w700,
-
               ),
             ),
           ),
@@ -61,15 +55,11 @@ class _SignUpContentState extends State< SignUpPageContent> {
                 fontWeight: FontWeight.w500,
                 fontFamily: "Inter",
                 letterSpacing: .3,
-
               ),
             ),
           ),
-
-
           InputFormField(
             hintText: 'Enter username',
-
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter your email';
@@ -106,13 +96,10 @@ class _SignUpContentState extends State< SignUpPageContent> {
               // Handle value change if needed
             },
           ),
-
-
           const DividerSeparator(
             thickness: 0.5,
             height: 20.0,
             textLabel: "Or sign in with",
-
           ),
           FacebookSignInButton(
             onPressed: () {
@@ -143,10 +130,6 @@ class _SignUpContentState extends State< SignUpPageContent> {
                     ),
                   ),
                 ),
-
-
-
-
                 GestureDetector(
                   onTap: () {
                     // Navigate to the sign-up page or perform any action here
@@ -154,12 +137,11 @@ class _SignUpContentState extends State< SignUpPageContent> {
 
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) =>  const LoginPage()),
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()),
                     );
                   },
-                  child:
-
-                 const Padding(
+                  child: const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 4),
                     child: Text(
                       'Sign In',
@@ -169,22 +151,18 @@ class _SignUpContentState extends State< SignUpPageContent> {
                       ),
                     ),
                   ),
-
-
                 ),
-
               ],
             ),
           ),
-
         ],
       ),
     );
   }
 
   void _signIn() {
-    String password_mock = "123";
-    String email_mock = "linh@gmail.com";
+    String password_mock = "12345";
+    String email_mock = "minhphuong@gmail.com";
     String email = _emailSignupController.text;
     String password =  _passwordSignupController.text;
     if (email.isEmpty) {
@@ -226,5 +204,3 @@ class _SignUpContentState extends State< SignUpPageContent> {
     }
   }
 }
-
-

@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         // home:AdminList(),
         //  home: EditProduct(),
         // home: AddProduct(),
-        home: SignUpPage(),
+        // home: SignUpPage(),
       
     );
   }

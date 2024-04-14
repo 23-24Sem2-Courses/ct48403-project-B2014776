@@ -43,6 +43,12 @@ class _ProductListState extends State<AdminListCard> {
                   onPressed: () {
                     // Add to cart functionality
                   },
+                  onDeleteSuccess: (productId) {
+                    setState(() {
+                      // Remove the deleted product from the list
+                      products.removeWhere((product) => product.id == productId);
+                    });
+                  },
                 );
               },
             ),

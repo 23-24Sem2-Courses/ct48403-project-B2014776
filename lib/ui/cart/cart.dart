@@ -1,3 +1,4 @@
+import 'package:ct484_project/model/cart.dart';
 import 'package:ct484_project/ui/account/component.dart';
 import 'package:ct484_project/ui/cart/cartList.dart';
 import 'package:flutter/material.dart';
@@ -10,15 +11,18 @@ class MyCart extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         toolbarHeight: 44.0,
-        centerTitle: true, // Đặt tiêu đề ở giữa
-        titleSpacing: 0.0, // Loại bỏ khoảng cách giữa nút trở lại và tiêu đề
-        title: const Text(
-          'Cart',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Cart',
+              style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ],
         ),
       ),
       body: Container(
@@ -141,22 +145,29 @@ class _TotalPriceCalculatorState extends State<TotalPriceCalculator> {
   }
 }
 
-class CartItem extends StatelessWidget {
-  final int id;
+class CartItemUI extends StatefulWidget {
+  final String id;
   final String imagePath;
   final String productName;
   final int quantity;
   final int pricePerProduct;
+  final Function(String) onDeleteSuccess;
 
-  const CartItem({
+  const CartItemUI({
     Key? key,
     required this.id,
     required this.imagePath,
     required this.productName,
     required this.quantity,
     required this.pricePerProduct,
+    required this.onDeleteSuccess,
   }) : super(key: key);
 
+  @override
+  _CartItemUIState createState() => _CartItemUIState();
+}
+
+class _CartItemUIState extends State<CartItemUI> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -188,9 +199,8 @@ class CartItem extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),
                       image: DecorationImage(
-                        image: NetworkImage(imagePath),
-                        fit: BoxFit
-                            .cover, // Đặt giá trị của fit thành BoxFit.cover
+                        image: NetworkImage(widget.imagePath),
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
@@ -206,7 +216,7 @@ class CartItem extends StatelessWidget {
                         children: [
                           Container(
                             child: Text(
-                              productName,
+                              widget.productName,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
@@ -217,13 +227,48 @@ class CartItem extends StatelessWidget {
                           SizedBox(
                             width: 24,
                             height: 24,
-                            child: Icon(Icons.clear),
+                            child: IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      AlertDialog(
+                                    title: Text("Are you sure"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text("No"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Cart.RemoveFromCart(
+                                              "6617a465233ccc19c49529e6", widget.id);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Delete success'),
+                                              duration: Duration(seconds: 2),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          );
+                                          widget.onDeleteSuccess(widget.id);
+                                        },
+                                        child: Text("Yes"),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ],
                       ),
                       TotalPriceCalculator(
-                        pricePerProduct: this.pricePerProduct,
-                        quantity: this.quantity,
+                        pricePerProduct: widget.pricePerProduct,
+                        quantity: widget.quantity,
                       ),
                     ],
                   ),

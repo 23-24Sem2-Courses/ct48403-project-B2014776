@@ -1,20 +1,25 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:ct484_project/model/cart.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path/path.dart' as path;
 
 String baseUrl = "https://mobile-backend-latest.onrender.com/api/v1";
 
 String baseUrlImage = "https://mobile-backend-latest.onrender.com";
 class Product {
   final String? id;
+  final String? category;
   final String productName;
   final String productDescription;
   String ? imageUrl;
   final double price;
 
   Product({
+    this.category,
     this.id,
     required this.productName,
     required this.productDescription,
@@ -113,7 +118,23 @@ class Product {
       throw Exception('Failed to fetch products: ${response.statusCode}');
     }
   }
+  static Future<void> deleteProductById(String productId) async {
+    final apiUrl = '$API_BASE_URL/products/$productId';
 
+    try {
+      final response = await http.delete(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        print('Product deleted successfully');
+      } else if (response.statusCode == 404) {
+        print('Product not found');
+      } else {
+        throw Exception('Failed to delete product: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to delete product: $e');
+    }
+  }
   static Future<void> addProduct(Product newProduct, File imageFile) async {
     final apiUrl = baseUrl + '/products';
     try {
@@ -124,17 +145,27 @@ class Product {
       request.fields['name'] = newProduct.productName;
       request.fields['description'] = newProduct.productDescription;
       request.fields['price'] = newProduct.price.toString();
+      request.fields["category"] = newProduct.category.toString();
+      request.fields["quantity"]="1";
 
-      // Add image file
-      request.files.add(
-          await http.MultipartFile.fromPath('image', imageFile.path));
+
+        var imageStream = http.ByteStream(imageFile.openRead());
+        var length = await imageFile.length();
+        var multipartFile = http.MultipartFile('image', imageStream, length, filename: basename(imageFile.path));
+        request.files.add(multipartFile);
+
 
       // Send the request
-      var response = await request.send();
+      var streamedResponse = await request.send();
+
+      // Get the response
+      var response = await http.Response.fromStream(streamedResponse);
 
       // Check the response status
       if (response.statusCode != 201) {
-        throw Exception('Failed to add product: ${response.statusCode}');
+
+          throw Exception('Failed to add product. Server responded with status code ${response.statusCode}. Message: ${response.body}');
+
       }
     } catch (e) {
       throw Exception('Failed to add product: $e');
@@ -144,32 +175,28 @@ class Product {
   // Method to update a product with image file
   static Future<void> updateProduct(Product updatedProduct,
       File? imageFile) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final loginToken = prefs.getString("token_login");
-    final headers = {
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer $loginToken',
-    };
+
     final apiUrl = baseUrl + '/products/${updatedProduct.id}';
 
     try {
       // Create a multipart request
       var request = http.MultipartRequest('PUT', Uri.parse(apiUrl));
-      request.headers.addAll(headers);
-
-      // Add product data
       request.fields['name'] = updatedProduct.productName;
       request.fields['description'] = updatedProduct.productDescription;
       request.fields['price'] = updatedProduct.price.toString();
+      request.fields["category"] = updatedProduct.category.toString();
 
       // Add image file
       if (imageFile != null) {
-        request.files.add(
-            await http.MultipartFile.fromPath('image', imageFile.path));
+        var imageStream = http.ByteStream(imageFile.openRead());
+        var length = await imageFile.length();
+        var multipartFile = http.MultipartFile('image', imageStream, length, filename: basename(imageFile.path));
+        request.files.add(multipartFile);
       }
 
       // Send the request
       var response = await request.send();
+
 
       // Check the response status
       if (response.statusCode == 200) {

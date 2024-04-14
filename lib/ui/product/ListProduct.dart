@@ -4,7 +4,11 @@ import 'package:ct484_project/ui/home/product/productList.dart';
 import 'package:flutter/material.dart';
 
 
+
 class ListProduct extends StatelessWidget {
+  final String category;
+
+  const ListProduct({super.key, required this.category});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,7 +19,8 @@ class ListProduct extends StatelessWidget {
       body: Container(
         child: Column(
           children: [
-            Expanded(child: ProductList()), // Sử dụng CartList ở đây
+
+            Expanded(child: ProductList(category: category,)), // Sử dụng CartList ở đây
           ],
         ),
       ),

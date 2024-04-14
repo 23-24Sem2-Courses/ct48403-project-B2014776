@@ -1,16 +1,34 @@
-import 'package:ct484_project/ui/account/component.dart';
-import 'package:ct484_project/ui/bottombar.dart';
+import 'package:ct484_project/model/cart.dart';
 import 'package:flutter/material.dart';
+import '../../model/product.dart';
+import '../bottombar.dart';
 
-class MyProduct extends StatelessWidget {
+class ProductDetail extends StatefulWidget {
+  final String productId;
+
+  const ProductDetail({required this.productId, super.key});
+
+  @override
+  _ProductDetailState createState() => _ProductDetailState();
+}
+
+class _ProductDetailState extends State<ProductDetail> {
+  late Future<Product?> _futureProduct;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureProduct = Product.getOneProduct(widget.productId);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         toolbarHeight: 44.0,
-        centerTitle: true, // Đặt tiêu đề ở giữa
-        titleSpacing: 0.0, // Loại bỏ khoảng cách giữa nút trở lại và tiêu đề
+        centerTitle: true,
+        titleSpacing: 0.0,
         title: const Text(
           'Product Details',
           style: TextStyle(
@@ -21,54 +39,78 @@ class MyProduct extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Image(
-              image: NetworkImage(
-                'https://th.bing.com/th/id/OIP.1klT6vw4oxx5tA2V7hLPWQHaHa?rs=1&pid=ImgDetMain',
-              ),
-            ),
-            TitleSection(
-              name: 'Laptop',
-            ),
-            Price(price: '27.758'),
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 5, right: 15, top: 10, bottom: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: FutureBuilder<Product?>(
+          future: _futureProduct,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else {
+              final product = snapshot.data!;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IncrementDecrementButtons(),
-                  SizedBox(width: 20), // Add spacing between buttons
-                  ElevatedButton(
-                    onPressed: () {
-                      // Your button action here
-                    },
-                    child: Text(
-                      'Add to cart',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.white,
-                      ),
+                  Image.network(
+                    product.imageUrl!,
+                    width: double.infinity,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                  SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: TitleSection(name: product.productName),
+                  ),
+                  SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Price(price: '${product.price} vnđ'),
+                  ),
+                  SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IncrementDecrementButtons(),
+                        ElevatedButton(
+                          onPressed: () {
+                            try{
+                              int counterValue = const IncrementDecrementButtons().counterValue;
+                              Cart.addToCart("6617a465233ccc19c49529e6", widget.productId, counterValue.toString());
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Add to cart success:'),
+                                  duration: Duration(seconds: 2),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            }
+                            catch (e){
+
+                            }
+                          },
+                          child: Text('Add to cart'),
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black, // Màu nền của nút
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(10), // Bo tròn góc của nút
-                      ),
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12), // Kích thước padding
-                    ),
-                  )
+                  ),
+                  SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: TextSection(description: product.productDescription),
+                  ),
                 ],
-              ),
-            ),
-            TextSection(
-                description:
-                    'degrees Celsius in the summer. Activities enjoyed here '
-                    'include rowing, and riding the summer toboggan run.'),
-          ],
+              );
+            }
+          },
         ),
       ),
       bottomNavigationBar: BottomBar(),
@@ -76,107 +118,68 @@ class MyProduct extends StatelessWidget {
   }
 }
 
-class TitleSection extends StatefulWidget {
+class TitleSection extends StatelessWidget {
   final String name;
 
   const TitleSection({required this.name});
 
   @override
-  _TitleSectionState createState() => _TitleSectionState();
-}
-
-class _TitleSectionState extends State<TitleSection> {
-  bool isFavorited = false;
-
-  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 5),
-      child: Row(
-        mainAxisAlignment:
-            MainAxisAlignment.spaceBetween, // Đặt các phần tử nằm ở hai bên
-        children: [
-          Text(
-            widget.name,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 28,
-            ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          name,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 28,
           ),
-          IconButton(
-            iconSize: 30.0, // Đặt kích thước của icon
-            icon: Icon(
-              isFavorited ? Icons.favorite : Icons.favorite_border,
-              color: isFavorited ? Colors.black : Colors.grey,
-            ),
-            onPressed: () {
-              setState(() {
-                isFavorited = !isFavorited;
-              });
-            },
-          ),
-        ],
-      ),
+        ),
+        IconButton(
+          iconSize: 30.0,
+          icon: Icon(Icons.favorite_border),
+          onPressed: () {
+            // Add your favorite action here
+          },
+        ),
+      ],
     );
   }
 }
 
 class Price extends StatelessWidget {
+  final String price;
+
   const Price({
     Key? key,
     required this.price,
   }) : super(key: key);
 
-  final String price;
-
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 0, bottom: 5, left: 15),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 0),
-                  child: Text(
-                    '$price',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+    return Text(
+      price,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 25,
       ),
     );
   }
 }
 
 class TextSection extends StatelessWidget {
-  const TextSection({
-    Key? key,
-    required this.description,
-  }) : super(key: key);
-
   final String description;
+
+  const TextSection({Key? key, required this.description}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Text(
-        description,
-        style: TextStyle(
-          fontSize: 18,
-        ),
-        softWrap: true,
+    return Text(
+      description,
+      style: TextStyle(
+        fontSize: 18,
       ),
+      softWrap: true,
     );
   }
 }
@@ -187,16 +190,19 @@ class IncrementDecrementButtons extends StatefulWidget {
   @override
   _IncrementDecrementButtonsState createState() =>
       _IncrementDecrementButtonsState();
+  int get counterValue => _IncrementDecrementButtonsState()._counter;
 }
 
 class _IncrementDecrementButtonsState extends State<IncrementDecrementButtons> {
-  int _counter = 0;
+  int _counter = 1;
 
   void _increment() {
     setState(() {
       _counter++;
     });
   }
+
+  int get counterValue => _counter;
 
   void _decrement() {
     setState(() {
@@ -209,7 +215,6 @@ class _IncrementDecrementButtonsState extends State<IncrementDecrementButtons> {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         IconButton(
           icon: Icon(Icons.remove),
