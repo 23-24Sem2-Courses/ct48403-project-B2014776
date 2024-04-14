@@ -1,3 +1,4 @@
+import 'package:ct484_project/ui/account/SignUpScreen.dart';
 import 'package:ct484_project/ui/account/loginScreen.dart';
 import 'package:ct484_project/ui/admin/addproduct.dart';
 // import 'package:ct484_project/ui/admin/addProduct.dart';
@@ -29,15 +30,16 @@ class MyApp extends StatelessWidget {
       title: 'PT DEVICE SHOP',
       // home: Screens(),
       //home: HomeCardPage(),
-      //home: MyProduct(), // Chỉ định HomeUI là trang chính của ứng dụng
+      // home: MyProduct(), // Chỉ định HomeUI là trang chính của ứng dụng
       //home: MyCart(),
       // home: MyFavorite(),
       // home: ListProduct(),
       // home: MyAccout(),
-        // home: AdminList(),
-        // home: AddProduct(),
+      //   home:  SplashScreen(),
+        // home:AdminList(),
         //  home: EditProduct(),
-        home: AddProduct(),
+        // home: AddProduct(),
+        home: SignUpPage(),
       
     );
   }

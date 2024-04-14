@@ -6,6 +6,9 @@ import 'package:ct484_project/ui/home/Appbar.dart';
 import 'package:ct484_project/ui/home/product/productList.dart';
 import 'package:flutter/material.dart';
 
+import '../../model/user.dart';
+import 'addproduct.dart';
+
 class AdminList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -31,8 +34,11 @@ class AdminList extends StatelessWidget {
                 'assets/header-images/logout.png',
                 width: 30, // Đặt chiều rộng của icon
                 height: 30, // Đặt chiều cao của icon
+
               ),
+
               onPressed: () {
+                logout();
                 // Chuyển hướng sang một trang khác khi nhấn vào icon "edit"
                 Navigator.pushReplacement(
                   context,
@@ -52,7 +58,13 @@ class AdminList extends StatelessWidget {
             Expanded(
               child: AdminListCard(), // Sử dụng CartList ở đây
             ),
-            CustomElevatedButton(text: "Add Product"),
+            CustomElevatedButton(text: "Add Product", onPressed:(){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddProduct()),
+              );
+            }
+            ),
           ],
         ),
       ),

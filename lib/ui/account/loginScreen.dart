@@ -1,6 +1,11 @@
 import 'package:ct484_project/ui/account/SignUpScreen.dart';
 import 'package:ct484_project/ui/account/component.dart';
+import 'package:ct484_project/ui/admin/admin.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../model/user.dart';
+import '../home/screens-ui.dart';
 
 
 
@@ -26,7 +31,7 @@ class LoginPageContent extends StatefulWidget {
 }
 
 class _LoginPageContentState extends State<LoginPageContent> {
-    final TextEditingController _emailController =TextEditingController();
+  final TextEditingController _emailController =TextEditingController();
   final TextEditingController _passwordController =TextEditingController();
 
 
@@ -104,12 +109,12 @@ class _LoginPageContentState extends State<LoginPageContent> {
               // Add onPressed action here
             },
           ),
-           Padding(
+          Padding(
             padding: EdgeInsets.only(bottom: 60, top: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-               const Padding(
+                const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 4),
                   child: Text(
                     'Don’t have an account ?',
@@ -147,13 +152,12 @@ class _LoginPageContentState extends State<LoginPageContent> {
     );
   }
 
-  void _signIn() {
+  Future<void> _signIn () async {
+
     if (!mounted) {
       // The widget is disposed, do not proceed
       return;
     }
-    String password_mock = "123";
-    String email_mock = "linh@gmail.com";
     String email = _emailController.text;
     String password = _passwordController.text;
     if (email.isEmpty) {
@@ -176,22 +180,37 @@ class _LoginPageContentState extends State<LoginPageContent> {
       );
       return; // Stop execution if email or password is empty
     }
-    if (password == password_mock && email == email_mock) {
+    try {
+      // Call the loginUser function
+      Map<String, dynamic> loginData = await loginUser(email, password);
+      String role=loginData["user"]["role"].toString();
+      if(role=="admin"){
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => AdminList()),
+        );
+        return;
+      }
+
+
+
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => Screens()),
+      );
+
+
+
+
+    } catch (e) {
+      // Handle errors or exceptions
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login success'),
+        SnackBar(
+          content: Text('Login failed: $e'),
           duration: Duration(seconds: 2),
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.red,
         ),
       );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login failed'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+
     }
   }
 }

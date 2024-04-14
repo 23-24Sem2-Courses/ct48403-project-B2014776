@@ -1,28 +1,36 @@
-import 'package:ct484_project/ui/account/SignUpScreen.dart';
+import 'dart:io';
+
 import 'package:ct484_project/ui/account/component.dart';
 import 'package:ct484_project/ui/home/Appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+
+import '../../model/product.dart';
 
 class EditProduct extends StatelessWidget {
-  const EditProduct({super.key});
+  final Product product;
+
+  const EditProduct({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(44.0), // Đặt chiều cao cho AppBar
+        preferredSize: const Size.fromHeight(44.0), // Đặt chiều cao cho AppBar
         child: MyAppBar(),
       ),
-      body: AddPageContent(),
+      body: AddPageContent(
+        product: product,
+      ),
     );
   }
 }
 
 class AddPageContent extends StatefulWidget {
-  const AddPageContent({Key? key}) : super(key: key);
-// oke t van treo ultra a
+  final Product product;
+
+  const AddPageContent({Key? key, required this.product}) : super(key: key);
+
   @override
   _AddPageContentState createState() => _AddPageContentState();
 }
@@ -31,6 +39,14 @@ class _AddPageContentState extends State<AddPageContent> {
   final TextEditingController _ProductController = TextEditingController();
   final TextEditingController _PriceController = TextEditingController();
   File? _Selectimage;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _ProductController.text = widget.product.productName.toString();
+    _PriceController.text = widget.product.price.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +101,6 @@ class _AddPageContentState extends State<AddPageContent> {
               child: Text('Select Image'),
             ),
 
-            
             // Hiển thị ảnh được chọn
             if (_Selectimage != null)
               Image.file(
@@ -93,7 +108,46 @@ class _AddPageContentState extends State<AddPageContent> {
                 width: 200,
                 height: 200,
               ),
-            CustomElevatedButton(text: "Edit Product"),
+            if (_Selectimage == null)
+              Image.network(
+                widget.product.imageUrl.toString(),
+                width: 200,
+                height: 200,
+              ),
+            CustomElevatedButton(
+                text: "Edit Product",
+                onPressed: () {
+                  Product editPro = Product(
+                      id: widget.product.id,
+                      productName: _ProductController.text,
+                      productDescription: "",
+                      price: double.parse(_PriceController.text));
+
+                  try {
+                    if (_Selectimage != null) {
+                      Product.updateProduct(editPro, _Selectimage);
+                    } else {
+                      Product.updateProduct(editPro, null);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('update success:'),
+                          duration: Duration(seconds: 2),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    // Handle errors or exceptions
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('update failed: $e'),
+                        duration: const Duration(seconds: 2),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }),
           ],
         ),
       ),
@@ -112,7 +166,8 @@ class _AddPageContentState extends State<AddPageContent> {
 
 class ProductCategoryDropdown extends StatefulWidget {
   @override
-  _ProductCategoryDropdownState createState() => _ProductCategoryDropdownState();
+  _ProductCategoryDropdownState createState() =>
+      _ProductCategoryDropdownState();
 }
 
 class _ProductCategoryDropdownState extends State<ProductCategoryDropdown> {

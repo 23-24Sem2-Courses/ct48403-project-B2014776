@@ -10,18 +10,15 @@ class MyCart extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         toolbarHeight: 44.0,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Cart',
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ],
+        centerTitle: true, // Đặt tiêu đề ở giữa
+        titleSpacing: 0.0, // Loại bỏ khoảng cách giữa nút trở lại và tiêu đề
+        title: const Text(
+          'Cart',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
         ),
       ),
       body: Container(

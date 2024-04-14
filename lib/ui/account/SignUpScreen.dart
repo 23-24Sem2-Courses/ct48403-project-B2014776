@@ -210,7 +210,7 @@ class _SignUpContentState extends State< SignUpPageContent> {
     if (password == password_mock && email == email_mock) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Login success'),
+          content: Text('Sign up success'),
           duration: Duration(seconds: 2),
           backgroundColor: Colors.green,
         ),
@@ -218,7 +218,7 @@ class _SignUpContentState extends State< SignUpPageContent> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Login failed'),
+          content: Text('Sign up failed'),
           duration: Duration(seconds: 2),
           backgroundColor: Colors.redAccent,
         ),

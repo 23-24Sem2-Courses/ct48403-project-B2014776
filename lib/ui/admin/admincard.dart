@@ -1,19 +1,16 @@
 import 'package:ct484_project/ui/account/loginScreen.dart';
 import 'package:flutter/material.dart';
 
+import '../../model/product.dart';
+import 'editProduct.dart';
+
 class AdminCard extends StatefulWidget {
-  final String productName;
-  final String productDescription;
-  final String imageUrl;
-  final double price;
+  final Product product;
   final VoidCallback onPressed;
 
   const AdminCard({
     Key? key,
-    required this.productName,
-    required this.productDescription,
-    required this.imageUrl,
-    required this.price,
+    required this.product,
     required this.onPressed,
   }) : super(key: key);
 
@@ -40,7 +37,7 @@ class _ProductCardState extends State<AdminCard> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.0),
             image: DecorationImage(
-              image: NetworkImage(widget.imageUrl),
+              image: NetworkImage(widget.product.imageUrl.toString()),
               fit: BoxFit.cover,
             ),
           ),
@@ -118,7 +115,7 @@ class _ProductCardState extends State<AdminCard> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        widget.productName,
+                        widget.product.productName,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -130,7 +127,7 @@ class _ProductCardState extends State<AdminCard> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            widget.price.toString(),
+                            widget.product.price.toString()+" vnđ",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -142,14 +139,14 @@ class _ProductCardState extends State<AdminCard> {
                             icon: Icon(
                               Icons.brush_outlined, 
                               color: isEdit ? Colors.black : Colors.black,
-                              size: 24.0,
+                              size: 24,
                             ),
                             onPressed: () {
                               // Chuyển hướng sang một trang khác khi nhấn vào icon "edit"
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(builder: (context) => LoginPage()),
-                              // );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) =>   EditProduct(product: widget.product)),
+                              );
                             },
                           ),
                         ],

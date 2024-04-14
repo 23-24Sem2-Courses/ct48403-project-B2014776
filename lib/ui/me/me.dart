@@ -83,7 +83,7 @@ class MyAccout extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       // Xử lý sự kiện khi nhấn vào icon 2
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => LoginPage()),
                       );

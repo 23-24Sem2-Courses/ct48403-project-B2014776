@@ -21,7 +21,7 @@ class AddProduct extends StatelessWidget {
 }
 
 class AddPageContent extends StatefulWidget {
-  const AddPageContent({Key? key}) : super(key: key);
+  const AddPageContent({super.key});
 // oke t van treo ultra a
   @override
   _AddPageContentState createState() => _AddPageContentState();

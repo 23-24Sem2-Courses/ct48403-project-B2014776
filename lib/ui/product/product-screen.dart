@@ -1,3 +1,4 @@
+import 'package:ct484_project/ui/account/component.dart';
 import 'package:ct484_project/ui/bottombar.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +9,8 @@ class MyProduct extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         toolbarHeight: 44.0,
+        centerTitle: true, // Đặt tiêu đề ở giữa
+        titleSpacing: 0.0, // Loại bỏ khoảng cách giữa nút trở lại và tiêu đề
         title: const Text(
           'Product Details',
           style: TextStyle(
@@ -16,91 +19,101 @@ class MyProduct extends StatelessWidget {
             color: Colors.black,
           ),
         ),
-        leading: IconButton(
-          icon: Image.asset(
-            'assets/header-images/backicon.png',
-            width: 24,
-            height: 24,
-          ),
-          onPressed: () {
-            // Handle when the icon is pressed
-          },
-        ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             Image(
               image: NetworkImage(
-                'https://www.bhphotovideo.com/images/images2500x2500/asus_k570ud_ds74_i7_8550u_8gb_1tb_256ssd_1405516.jpg',
+                'https://th.bing.com/th/id/OIP.1klT6vw4oxx5tA2V7hLPWQHaHa?rs=1&pid=ImgDetMain',
               ),
             ),
             TitleSection(
-              name: 'LAPTOP HP2GW59',
+              name: 'Laptop',
             ),
-            Price(price: '27.000.00'),
-            
-            Row(
-              
-              mainAxisAlignment: MainAxisAlignment.start,
-            
-              children: [
-                IncrementDecrementButtons(),
-                SizedBox(width: 20), // Add spacing between buttons
-                
-              ],
+            Price(price: '27.758'),
+            Padding(
+              padding:
+                  const EdgeInsets.only(left: 5, right: 15, top: 10, bottom: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IncrementDecrementButtons(),
+                  SizedBox(width: 20), // Add spacing between buttons
+                  ElevatedButton(
+                    onPressed: () {
+                      // Your button action here
+                    },
+                    child: Text(
+                      'Add to cart',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black, // Màu nền của nút
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(10), // Bo tròn góc của nút
+                      ),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12), // Kích thước padding
+                    ),
+                  )
+                ],
+              ),
             ),
             TextSection(
-              description:
-                  'degrees Celsius in the summer. Activities enjoyed here '
-                  'include rowing, and riding the summer toboggan run.'
-                  'djajkdkaaldla'
-                  'djakldlaladaaa;da;dakaa;d;da'
-                  'djakkadalkadjdakdjkjdafjakllkafllala'
-                  'jksjkfjkakklakfjfhfjkakfjfhjfkakfkhsjsfkjk'
-                  'dkaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-            )
+                description:
+                    'degrees Celsius in the summer. Activities enjoyed here '
+                    'include rowing, and riding the summer toboggan run.'),
           ],
         ),
       ),
-      
-      
-      
       bottomNavigationBar: BottomBar(),
     );
   }
 }
 
-class TitleSection extends StatelessWidget {
-  const TitleSection({
-    Key? key,
-    required this.name,
-  }) : super(key: key);
-
+class TitleSection extends StatefulWidget {
   final String name;
+
+  const TitleSection({required this.name});
+
+  @override
+  _TitleSectionState createState() => _TitleSectionState();
+}
+
+class _TitleSectionState extends State<TitleSection> {
+  bool isFavorited = false;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 5),
       child: Row(
+        mainAxisAlignment:
+            MainAxisAlignment.spaceBetween, // Đặt các phần tử nằm ở hai bên
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 0),
-                  child: Text(
-                    name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                ),
-              ],
+          Text(
+            widget.name,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 28,
             ),
+          ),
+          IconButton(
+            iconSize: 30.0, // Đặt kích thước của icon
+            icon: Icon(
+              isFavorited ? Icons.favorite : Icons.favorite_border,
+              color: isFavorited ? Colors.black : Colors.grey,
+            ),
+            onPressed: () {
+              setState(() {
+                isFavorited = !isFavorited;
+              });
+            },
           ),
         ],
       ),
@@ -119,7 +132,7 @@ class Price extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.only(top: 0, bottom: 5, left: 15),
       child: Row(
         children: [
           Expanded(
@@ -129,10 +142,10 @@ class Price extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 0),
                   child: Text(
-                    '$price\đ',
+                    '$price',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                      fontSize: 25,
                     ),
                   ),
                 ),
@@ -187,7 +200,7 @@ class _IncrementDecrementButtonsState extends State<IncrementDecrementButtons> {
 
   void _decrement() {
     setState(() {
-      if (_counter > 0) {
+      if (_counter > 1) {
         _counter--;
       }
     });
