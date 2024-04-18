@@ -2,7 +2,6 @@ import 'package:ct484_project/model/cart.dart';
 import 'package:ct484_project/ui/account/component.dart';
 import 'package:ct484_project/ui/cart/cartList.dart';
 import 'package:flutter/material.dart';
-import 'package:ct484_project/ui/cart/cart.dart';
 
 class MyCart extends StatelessWidget {
   @override
@@ -245,7 +244,7 @@ class _CartItemUIState extends State<CartItemUI> {
                                       TextButton(
                                         onPressed: () {
                                           Cart.RemoveFromCart(
-                                              "6617a465233ccc19c49529e6", widget.id);
+                                               widget.id);
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             const SnackBar(
@@ -255,8 +254,10 @@ class _CartItemUIState extends State<CartItemUI> {
                                             ),
                                           );
                                           widget.onDeleteSuccess(widget.id);
+                                          Navigator.of(context).pop();
                                         },
                                         child: Text("Yes"),
+
                                       ),
                                     ],
                                   ),

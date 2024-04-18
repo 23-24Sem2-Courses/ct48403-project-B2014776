@@ -2,10 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:ct484_project/model/cart.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 import 'package:path/path.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:path/path.dart' as path;
 
 String baseUrl = "https://mobile-backend-latest.onrender.com/api/v1";
 
@@ -42,7 +39,8 @@ class Product {
       productDescription: json['description'],
       imageUrl: "$baseUrlImage/uploads/" + json['image'],
       // Use baseUrl here
-      price: json['price'].toDouble(),
+      price: _parsePrice(json['price']),
+      category: _parseCategory(json['category'])
     );
   }
 
@@ -72,19 +70,37 @@ class Product {
     final response = await http.get(Uri.parse(apiUrl));
 
     if (response.statusCode == 200) {
-      final List<dynamic> jsonData = jsonDecode(response.body);
-      return jsonData.map((itemJson) => Product.fromJson(itemJson)).toList();
+      final Map<String, dynamic> jsonData = jsonDecode(response.body); // Parse as map
+      final List<dynamic> productList = jsonData['products']; // Access the 'products' key containing the list of products
+      return productList.map((itemJson) => Product.fromJson(itemJson)).toList();
     } else {
       throw Exception('Failed to fetch products: ${response.statusCode}');
     }
   }
-
+  static Future<List<Product>> searchProducts(String query) async {
+    final apiUrl = 'https://mobile-backend-latest.onrender.com/api/v1/products?search=$query';
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      print('check ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonData = jsonDecode(response.body); // Parse as map
+        final List<dynamic> productList = jsonData['products']; // Access the 'products' key containing the list of products
+        return productList.map((itemJson) => Product.fromJson(itemJson)).toList();
+      } else {
+        throw Exception('Failed to search products: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to search products: $e');
+    }
+  }
   static Future<List<Product>> fetchLaptopProducts() async {
     final apiUrl = baseUrl + '/products/category/laptop'; // Use baseUrl here
     final response = await http.get(Uri.parse(apiUrl));
 
     if (response.statusCode == 200) {
+
       final List<dynamic> jsonData = jsonDecode(response.body);
+      print(jsonData);
       return jsonData.map((itemJson) => Product.fromJson(itemJson)).toList();
     } else {
       throw Exception('Failed to fetch products: ${response.statusCode}');
@@ -176,16 +192,17 @@ class Product {
   static Future<void> updateProduct(Product updatedProduct,
       File? imageFile) async {
 
+
     final apiUrl = baseUrl + '/products/${updatedProduct.id}';
 
     try {
+      print(' category ${updatedProduct.category}');
       // Create a multipart request
       var request = http.MultipartRequest('PUT', Uri.parse(apiUrl));
       request.fields['name'] = updatedProduct.productName;
       request.fields['description'] = updatedProduct.productDescription;
       request.fields['price'] = updatedProduct.price.toString();
       request.fields["category"] = updatedProduct.category.toString();
-
       // Add image file
       if (imageFile != null) {
         var imageStream = http.ByteStream(imageFile.openRead());
@@ -206,6 +223,24 @@ class Product {
       }
     } catch (e) {
       throw Exception('Failed to update product: $e');
+    }
+  }
+  static double _parsePrice(dynamic value) {
+    if (value is num) {
+      return value.toDouble();
+    } else if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    } else {
+      return 0.0;
+    }
+  }
+  static String? _parseCategory(dynamic value) {
+    if (value is String) {
+      return value;
+    } else if (value is Map<String, dynamic>) {
+      return value['_id'];
+    } else {
+      return null;
     }
   }
 }

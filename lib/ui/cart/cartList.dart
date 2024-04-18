@@ -1,80 +1,70 @@
-import 'package:ct484_project/ui/cart/cart.dart';
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
-class CartList extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:ct484_project/model/cart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+
+import 'cart.dart';
+
+class CartList extends StatefulWidget {
+  @override
+  _CartListState createState() => _CartListState();
+}
+
+class _CartListState extends State<CartList> {
+  late Future<Cart> _futureCart;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _futureCart = Cart.getUserCart();
+
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
-    // Here, you would typically fetch the list of cart items from somewhere
-    // For demonstration purposes, let's assume you have a list of items
-
-    List<CartItemData> cartItems = [
-      CartItemData(
-        id: 1,
-        imagePath:
-            'https://th.bing.com/th/id/R.8c8880f40845652dac35e40bb934e8e1?rik=elW37a26DQ6znw&pid=ImgRaw&r=0',
-        productName: 'Product 1',
-        quantity: 2,
-        pricePerProduct: 100,
-      ),
-      CartItemData(
-        id: 2,
-        imagePath:
-            'https://1.bp.blogspot.com/-N8jrhU8fmkQ/WdSn_BbvZXI/AAAAAAAADHQ/xANL-2oihggBWJ1gbN9GV_XeOSxUatXswCLcBGAs/s1600/tai-nghe-bluetooth-blue-1.jpg',
-        productName: 'Product 2',
-        quantity: 1,
-        pricePerProduct: 50,
-      ),
-
-      CartItemData(
-        id: 2,
-        imagePath:
-            'https://1.bp.blogspot.com/-N8jrhU8fmkQ/WdSn_BbvZXI/AAAAAAAADHQ/xANL-2oihggBWJ1gbN9GV_XeOSxUatXswCLcBGAs/s1600/tai-nghe-bluetooth-blue-1.jpg',
-        productName: 'Product 2',
-        quantity: 1,
-        pricePerProduct: 50,
-      ),
-      CartItemData(
-        id: 2,
-        imagePath:
-            'https://1.bp.blogspot.com/-N8jrhU8fmkQ/WdSn_BbvZXI/AAAAAAAADHQ/xANL-2oihggBWJ1gbN9GV_XeOSxUatXswCLcBGAs/s1600/tai-nghe-bluetooth-blue-1.jpg',
-        productName: 'Product 2',
-        quantity: 1,
-        pricePerProduct: 50,
-      ),
-      // Add more items as needed
-    ];
-
-    return ListView.builder(
-      itemCount: cartItems.length,
-      itemBuilder: (context, index) {
-        final item = cartItems[index];
-        return CartItem(
-          id: item.id,
-          imagePath: item.imagePath,
-          productName: item.productName,
-          quantity: item.quantity,
-          pricePerProduct: item.pricePerProduct,
-        );
+    return FutureBuilder<Cart>(
+      future: _futureCart,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('No items in the cart'),
+          );
+        } else if (!snapshot.hasData) {
+          return Center(
+            child: Text('No items in the cart'),
+          );
+        } else {
+          final cart = snapshot.data!;
+          return ListView.builder(
+            itemCount: cart.products.length,
+            itemBuilder: (context, index) {
+              final item = cart.products[index];
+              return CartItemUI(
+                id: item.product.id.toString(),
+                imagePath: item.product.imageUrl.toString(),
+                productName: item.product.productName,
+                quantity: item.quantity,
+                pricePerProduct: (item.quantity*item.product.price).toInt(),
+                onDeleteSuccess: (productId) {
+                  setState(() {
+                    // Remove the deleted product from the list
+                    cart.products.removeAt(index);
+                  });
+                },
+              );
+            },
+          );
+        }
       },
     );
   }
-}
-
-
-
-
-class CartItemData {
-  final int id;
-  final String imagePath;
-  final String productName;
-  final int quantity;
-  final int pricePerProduct;
-
-  const CartItemData({
-    required this.id,
-    required this.imagePath,
-    required this.productName,
-    required this.quantity,
-    required this.pricePerProduct,
-  });
 }

@@ -1,75 +1,78 @@
-import 'package:ct484_project/ui/cart/cart.dart';
-import 'package:ct484_project/ui/favorite/favorite.dart';
 import 'package:flutter/material.dart';
+import 'package:ct484_project/model/product.dart';
 
-class FavoriteList extends StatelessWidget {
+import '../../model/wishlist.dart';
+import 'favorite.dart';
+
+class FavoriteList extends StatefulWidget {
+  @override
+  _FavoriteListState createState() => _FavoriteListState();
+}
+
+class _FavoriteListState extends State<FavoriteList> {
+  late List<Product> favoriteItems;
+
+  @override
+  void initState() {
+    super.initState();
+    loadFavoriteItems();
+  }
+
+  Future<void> loadFavoriteItems() async {
+    try {
+      final List<Product> fetchedItems = await Wishlist.getUserWishlist();
+      setState(() {
+        favoriteItems = fetchedItems;
+      });
+    } catch (e) {
+      // Handle error
+      print('Failed to fetch favorite items: $e');
+      throw Exception('Failed to fetch favorite items: $e');
+    }
+  }
+
+  Future<void> removeFromFavorites(String productId) async {
+    try {
+      await Wishlist.removeFromWishlist(productId);
+      setState(() {
+        favoriteItems.removeWhere((item) => item.id == productId);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Removed from favorites successfully'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to remove from favorites'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Here, you would typically fetch the list of cart items from somewhere
-    // For demonstration purposes, let's assume you have a list of items
-
-    List<FavoriteItemData> FavoriteItems = [
-      FavoriteItemData(
-        id: 1,
-        imagePath:
-            'https://th.bing.com/th/id/R.8c8880f40845652dac35e40bb934e8e1?rik=elW37a26DQ6znw&pid=ImgRaw&r=0',
-        productName: 'Product 1',
-        pricePerProduct: 100,
-      ),
-      
-      FavoriteItemData(
-        id: 2,
-        imagePath:
-            'https://1.bp.blogspot.com/-N8jrhU8fmkQ/WdSn_BbvZXI/AAAAAAAADHQ/xANL-2oihggBWJ1gbN9GV_XeOSxUatXswCLcBGAs/s1600/tai-nghe-bluetooth-blue-1.jpg',
-        productName: 'Product 2',
-        pricePerProduct: 50,
-      ),
-
-      FavoriteItemData(
-        id: 2,
-        imagePath:
-            'https://1.bp.blogspot.com/-N8jrhU8fmkQ/WdSn_BbvZXI/AAAAAAAADHQ/xANL-2oihggBWJ1gbN9GV_XeOSxUatXswCLcBGAs/s1600/tai-nghe-bluetooth-blue-1.jpg',
-        productName: 'Product 2',
-        pricePerProduct: 50,
-      ),
-      FavoriteItemData(
-        id: 2,
-        imagePath:
-            'https://1.bp.blogspot.com/-N8jrhU8fmkQ/WdSn_BbvZXI/AAAAAAAADHQ/xANL-2oihggBWJ1gbN9GV_XeOSxUatXswCLcBGAs/s1600/tai-nghe-bluetooth-blue-1.jpg',
-        productName: 'Product 2',
-        pricePerProduct: 50,
-      ),
-      // Add more items as needed
-    ];
-
-    return ListView.builder(
-      itemCount: FavoriteItems.length,
+    return favoriteItems.isEmpty
+        ? const Center(
+      child: Text("No favorite items available"),
+    )
+        : ListView.builder(
+      itemCount: favoriteItems.length,
       itemBuilder: (context, index) {
-        final item = FavoriteItems[index];
+        final item = favoriteItems[index];
         return FavoriteItem(
-          id: item.id,
-          imagePath: item.imagePath,
+          id: item.id.toString(),
+          imagePath: item.imageUrl.toString(),
           productName: item.productName,
-          pricePerProduct: item.pricePerProduct,
+          pricePerProduct: item.price.toInt(),
+          onRemove: () => removeFromFavorites(item.id.toString()),
         );
       },
     );
   }
-}
-
-
-
-
-class FavoriteItemData {
-  final int id;
-  final String imagePath;
-  final String productName;
-  final int pricePerProduct;
-
-  const FavoriteItemData({
-    required this.id,
-    required this.imagePath,
-    required this.productName,
-    required this.pricePerProduct,
-  });
 }

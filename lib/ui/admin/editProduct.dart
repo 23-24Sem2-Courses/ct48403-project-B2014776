@@ -11,13 +11,13 @@ import '../../model/product.dart';
 class EditProduct extends StatelessWidget {
   final Product product;
 
-  EditProduct({super.key, required this.product});
+  const EditProduct({Key? key, required this.product}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(44.0), // Đặt chiều cao cho AppBar
+        preferredSize: const Size.fromHeight(44.0), // Set the height for AppBar
         child: MyAppBar(),
       ),
       body: AddPageContent(
@@ -37,23 +37,39 @@ class AddPageContent extends StatefulWidget {
 }
 
 class _AddPageContentState extends State<AddPageContent> {
-  final TextEditingController _ProductController = TextEditingController();
-  final TextEditingController _PriceController = TextEditingController();
-  File? _Selectimage;
+  final TextEditingController _productController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  File? _selectedImage;
   String? _selectedCategory;
+  List<Category> _categories = [];
 
-  void _handleCategorySelected(String? selectedCategory) {
-    setState(() {
-      _selectedCategory = selectedCategory;
-    });
-    // You can perform further actions with the selected category here
-  }
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _ProductController.text = widget.product.productName.toString();
-    _PriceController.text = widget.product.price.toString();
+    _productController.text = widget.product.productName.toString();
+    _priceController.text = widget.product.price.toString();
+    _descriptionController.text = widget.product.productDescription.toString();
+    _selectedCategory = widget.product.category.toString();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      List<Category> categories = await Category.fetchCategories();
+      setState(() {
+        _categories = categories;
+      });
+    } catch (error) {
+      print('Error loading categories: $error');
+      // Handle error, e.g., show error message to user
+    }
+  }
+
+  void _handleCategorySelected(String? newValue) {
+    setState(() {
+      _selectedCategory = newValue;
+    });
   }
 
   @override
@@ -74,7 +90,7 @@ class _AddPageContentState extends State<AddPageContent> {
             ),
             InputFormField(
               hintText: 'Enter the product name',
-              controller: _ProductController,
+              controller: _productController,
             ),
             Padding(
               padding: const EdgeInsets.only(left: 20),
@@ -87,9 +103,28 @@ class _AddPageContentState extends State<AddPageContent> {
             ),
             InputFormField(
               hintText: 'Enter the price',
-              controller: _PriceController,
+              controller: _priceController,
             ),
-
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Row(children: [
+                Text(
+                  'DESCRIPTION :',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: TextFormField(
+                controller: _descriptionController,
+                maxLines: 5, // Adjust this value as needed
+                decoration: InputDecoration(
+                  hintText: 'Enter the product description',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(left: 20),
               child: Row(children: [
@@ -101,7 +136,9 @@ class _AddPageContentState extends State<AddPageContent> {
             ),
 
             ProductCategoryDropdown(
-          onCategorySelected: _handleCategorySelected,
+              categories: _categories,
+              selectedCategory: _selectedCategory,
+              onCategorySelected: _handleCategorySelected,
             ),
 
             ElevatedButton(
@@ -111,53 +148,55 @@ class _AddPageContentState extends State<AddPageContent> {
               child: Text('Select Image'),
             ),
 
-            // Hiển thị ảnh được chọn
-            if (_Selectimage != null)
+            // Display the selected image
+            if (_selectedImage != null)
               Image.file(
-                _Selectimage!,
+                _selectedImage!,
                 width: 200,
                 height: 200,
               ),
-            if (_Selectimage == null)
+            if (_selectedImage == null)
               Image.network(
                 widget.product.imageUrl.toString(),
                 width: 200,
                 height: 200,
               ),
             CustomElevatedButton(
-                text: "Edit Product",
-                onPressed: () {
-                  Product editPro = Product(
-                      id: widget.product.id,
-                      productName: _ProductController.text,
-                      productDescription: "",
-                      price: double.parse(_PriceController.text));
+              text: "Edit Product",
+              onPressed: () {
+                Product editedProduct = Product(
+                  id: widget.product.id,
+                  productName: _productController.text,
+                  productDescription: _descriptionController.text,
+                  price: double.parse(_priceController.text),
+                  category: _selectedCategory,
+                );
 
-                  try {
-                    if (_Selectimage != null) {
-                      Product.updateProduct(editPro, _Selectimage);
-                    } else {
-                      Product.updateProduct(editPro, null);
+                try {
+                  if (_selectedImage != null) {
+                    Product.updateProduct(editedProduct, _selectedImage);
+                  } else {
+                    Product.updateProduct(editedProduct, null);
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('update success:'),
-                          duration: Duration(seconds: 2),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    // Handle errors or exceptions
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('update failed: $e'),
-                        duration: const Duration(seconds: 2),
+                      const SnackBar(
+                        content: Text('update success:'),
+                        duration: Duration(seconds: 2),
                         backgroundColor: Colors.red,
                       ),
                     );
                   }
-                }),
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('update failed: $e'),
+                      duration: const Duration(seconds: 2),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+            ),
           ],
         ),
       ),
@@ -165,53 +204,26 @@ class _AddPageContentState extends State<AddPageContent> {
   }
 
   Future _pickImageFromGallery() async {
-    final pickedImage =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedImage == null) return null;
     setState(() {
-      _Selectimage = File(pickedImage.path);
+      _selectedImage = File(pickedImage.path);
     });
   }
 }
 
-class ProductCategoryDropdown extends StatefulWidget {
+class ProductCategoryDropdown extends StatelessWidget {
+  final List<Category> categories;
+  final String? selectedCategory;
   final void Function(String?) onCategorySelected;
 
-  const ProductCategoryDropdown({super.key, required this.onCategorySelected});
-  @override
-  _ProductCategoryDropdownState createState() => _ProductCategoryDropdownState();
-}
+  const ProductCategoryDropdown({
+    Key? key,
+    required this.categories,
+    required this.selectedCategory,
+    required this.onCategorySelected,
+  }) : super(key: key);
 
-class _ProductCategoryDropdownState extends State<ProductCategoryDropdown> {
-
-  String? _selectedCategory;
-  List<Category> _categories = [];
-
-  Future<void> _loadCategories() async {
-    try {
-      List<Category> categories = await Category.fetchCategories();
-      setState(() {
-        _categories = categories;
-      });
-    } catch (error) {
-      print('Error loading categories: $error');
-      // Handle error, e.g., show error message to user
-    }
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _loadCategories();
-  }
-  void _handleCategorySelected(String? newValue) {
-    setState(() {
-      _selectedCategory = newValue;
-    });
-    // Call the callback function to notify the parent widget
-    widget.onCategorySelected(newValue);
-  }
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -233,12 +245,11 @@ class _ProductCategoryDropdownState extends State<ProductCategoryDropdown> {
               padding: const EdgeInsets.only(left: 16),
               child: Text('Select Category'),
             ),
-            value: _selectedCategory,
+            value: selectedCategory,
             onChanged: (String? newValue) {
-
-              widget.onCategorySelected(newValue);
+              onCategorySelected(newValue);
             },
-            items: _categories.map((Category category) {
+            items: categories.map((Category category) {
               return DropdownMenuItem<String>(
                 value: category.id,
                 child: Padding(
@@ -253,4 +264,3 @@ class _ProductCategoryDropdownState extends State<ProductCategoryDropdown> {
     );
   }
 }
-

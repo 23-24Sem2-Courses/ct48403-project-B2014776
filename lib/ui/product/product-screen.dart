@@ -78,7 +78,7 @@ class _ProductDetailState extends State<ProductDetail> {
                           onPressed: () {
                             try{
                               int counterValue = const IncrementDecrementButtons().counterValue;
-                              Cart.addToCart("6617a465233ccc19c49529e6", widget.productId, counterValue.toString());
+                              Cart.addToCart( widget.productId, counterValue.toString());
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Add to cart success:'),

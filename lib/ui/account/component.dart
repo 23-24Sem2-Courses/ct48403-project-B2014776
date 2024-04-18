@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
   class InputFormField extends StatefulWidget {
     final String? hintText;
+    final bool obscureText;
     final String? Function(String?)? validator;
     final void Function(String)? onChanged;
     final TextEditingController? controller;
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
       this.validator,
       this.onChanged,
       this.controller,
+      this.obscureText=false
     });
 
     @override
@@ -22,11 +24,12 @@ import 'package:flutter/material.dart';
 
   class _InputFormFieldState extends State<InputFormField> {
     late TextEditingController _textController;
-
+    bool _isObscure = true; // Trạng thái che mật khẩu1
     @override
     void initState() {
       super.initState();
       _textController = widget.controller ?? TextEditingController();
+      // _isObscure = widget.obscureText; // Khởi tạo giá trị trạng thái ẩn/mở mật khẩu
     }
 
     @override
@@ -52,14 +55,27 @@ import 'package:flutter/material.dart';
               letterSpacing: 0.3,
               fontWeight: FontWeight.w400,
             ),
+            obscureText: widget.obscureText,
             decoration: InputDecoration(
               hintText: widget.hintText,
                 errorText:widget.errorText,
               border: const OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey),
                 borderRadius: BorderRadius.all(Radius.circular(12)),
+
               ),
+              suffixIcon: widget.obscureText
+                  ? IconButton(
+                onPressed: () {
+                  setState(() {
+                    _isObscure = !_isObscure;
+                  });
+                },
+                icon: Icon(_isObscure ? Icons.visibility : Icons.visibility_off),
+              )
+                  : null,
             ),
+
           ),
         ),
       );

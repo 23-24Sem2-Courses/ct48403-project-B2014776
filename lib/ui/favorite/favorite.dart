@@ -1,9 +1,4 @@
-import 'package:ct484_project/ui/account/component.dart';
-import 'package:ct484_project/ui/bottombar.dart';
-import 'package:ct484_project/ui/favorite/FavoriteList.dart';
-import 'package:flutter/material.dart';
-import 'package:ct484_project/ui/cart/cart.dart';
-
+import 'package:ct484_project/model/wishlist.dart';
 import 'package:ct484_project/ui/account/component.dart';
 import 'package:ct484_project/ui/bottombar.dart';
 import 'package:ct484_project/ui/favorite/FavoriteList.dart';
@@ -17,15 +12,18 @@ class MyFavorite extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         toolbarHeight: 44.0,
-        centerTitle: true, // Đặt tiêu đề ở giữa
-        titleSpacing: 0.0, // Loại bỏ khoảng cách giữa nút trở lại và tiêu đề
-        title: const Text(
-          'Favorites',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Favorites',
+              style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ],
         ),
       ),
       body: Container(
@@ -41,17 +39,17 @@ class MyFavorite extends StatelessWidget {
 }
 
 class FavoriteItem extends StatelessWidget {
-  final int id;
+  final String id;
   final String imagePath;
   final String productName;
   final int pricePerProduct;
-
+  final VoidCallback onRemove; // Define the onRemove callback
   const FavoriteItem({
     Key? key,
     required this.id,
     required this.imagePath,
     required this.productName,
-    required this.pricePerProduct,
+    required this.pricePerProduct, required this.onRemove,
   }) : super(key: key);
 
   @override
@@ -117,7 +115,7 @@ class FavoriteItem extends StatelessWidget {
                             width: 40,
                             height: 40,
                             child:
-                                FavoriteIcon(), // Sử dụng FavoriteIcon thay cho Icon(Icons.favorite)
+                            FavoriteIcon(product_id: id,), // Sử dụng FavoriteIcon thay cho Icon(Icons.favorite)
                           ),
                         ],
                       ),
@@ -145,27 +143,69 @@ class FavoriteItem extends StatelessWidget {
 }
 
 class FavoriteIcon extends StatefulWidget {
+  final String product_id;
+
+  const FavoriteIcon({super.key, required this.product_id});
   @override
-  _FavoriteIconState createState() => _FavoriteIconState();
+  _FavoriteIconState createState() => _FavoriteIconState(product_id: product_id);
 }
 
 class _FavoriteIconState extends State<FavoriteIcon> {
   bool isFavorite = false;
+  final String product_id;
+
+  _FavoriteIconState({required this.product_id});
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-        icon: Icon(
-          isFavorite ? Icons.favorite : Icons.favorite_border,
-          color: isFavorite
-              ? Colors.black
-              : null, // Đặt màu cho trái tim khi được chọn
-        ),
-        onPressed: () {
-          setState(() {
-            isFavorite = !isFavorite; // Đảo ngược trạng thái của biến isFavorite
-          });
-        },
-      );
+      icon: Icon(
+        isFavorite ? Icons.favorite : Icons.favorite_border,
+        color: isFavorite ? Colors.black : null,
+      ),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Confirm'),
+              content: Text('Are you sure you want to remove this item from favorites?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    try {
+                      await Wishlist.removeFromWishlist(product_id);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Remove from favorites success'),
+                          duration: Duration(seconds: 2),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Remove from favorites failed'),
+                          duration: Duration(seconds: 2),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('Yes'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 }

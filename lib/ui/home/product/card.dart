@@ -1,8 +1,10 @@
+import 'package:ct484_project/model/wishlist.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/material.dart';
 
 class ProductCard extends StatefulWidget {
+  final String id;
   final String productName;
   final String productDescription;
   final String imageUrl;
@@ -15,7 +17,7 @@ class ProductCard extends StatefulWidget {
     required this.productDescription,
     required this.imageUrl,
     required this.price,
-    required this.onPressed,
+    required this.onPressed, required this.id,
   }) : super(key: key);
 
   @override
@@ -74,7 +76,29 @@ class _ProductCardState extends State<ProductCard> {
                               onPressed: () {
                                 setState(() {
                                   isFavorite = !isFavorite;
+
                                 });
+                                try{
+                                  Wishlist.addToWishlist(widget.id);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Add to favorite success'),
+                                      duration: Duration(seconds: 2),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                }
+                                catch(e)
+                                {
+                                  print("error $e");
+                                  const SnackBar(
+                                    content: Text('Add to favorite failed'),
+                                    duration: Duration(seconds: 2),
+                                    backgroundColor: Colors.red,
+                                  );
+                                }
+
+
                               },
                             ),
                           ],

@@ -1,5 +1,4 @@
 import 'package:ct484_project/model/product.dart';
-import 'package:ct484_project/ui/account/SignUpScreen.dart';
 import 'package:ct484_project/ui/account/component.dart';
 import 'package:ct484_project/ui/home/Appbar.dart';
 import 'package:flutter/material.dart';
@@ -9,13 +8,13 @@ import 'dart:io';
 import '../../model/category.dart';
 
 class AddProduct extends StatelessWidget {
-  const AddProduct({super.key});
+  const AddProduct({Key? key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(44.0), // Đặt chiều cao cho AppBar
+        preferredSize: Size.fromHeight(44.0), // Set the height for AppBar
         child: MyAppBar(),
       ),
       body: AddPageContent(),
@@ -24,16 +23,18 @@ class AddProduct extends StatelessWidget {
 }
 
 class AddPageContent extends StatefulWidget {
-  const AddPageContent({super.key});
-// oke t van treo ultra a
+
+  const AddPageContent({Key? key});
+
   @override
   _AddPageContentState createState() => _AddPageContentState();
 }
 
 class _AddPageContentState extends State<AddPageContent> {
-  final TextEditingController _ProductController = TextEditingController();
-  final TextEditingController _PriceController = TextEditingController();
-  File? _Selectimage;
+  final TextEditingController _productController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  File? _selectedImage;
   bool _isLoading = false;
 
   String? _selectedCategory;
@@ -42,16 +43,15 @@ class _AddPageContentState extends State<AddPageContent> {
     setState(() {
       _selectedCategory = selectedCategory;
     });
-    // You can perform further actions with the selected category here
   }
 
-
-  void clear_fields(){
-    _ProductController.text="";
-    _PriceController.text="";
-    _Selectimage=null;
-    _selectedCategory=null;
+  void clearFields() {
+    _productController.text = "";
+    _priceController.text = "";
+    _selectedImage = null;
+    _selectedCategory = null;
   }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -70,7 +70,7 @@ class _AddPageContentState extends State<AddPageContent> {
             ),
             InputFormField(
               hintText: 'Enter the product name',
-              controller: _ProductController,
+              controller: _productController,
             ),
             Padding(
               padding: const EdgeInsets.only(left: 20),
@@ -83,9 +83,28 @@ class _AddPageContentState extends State<AddPageContent> {
             ),
             InputFormField(
               hintText: 'Enter the price',
-              controller: _PriceController,
+              controller: _priceController,
             ),
-
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Row(children: [
+                Text(
+                  'Description:',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: TextFormField(
+                controller: _descriptionController,
+                maxLines: 5, // Adjust this value as needed
+                decoration: InputDecoration(
+                  hintText: 'Enter the product description',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(left: 20),
               child: Row(children: [
@@ -97,7 +116,7 @@ class _AddPageContentState extends State<AddPageContent> {
             ),
 
             ProductCategoryDropdown(
-              onCategorySelected: _handleCategorySelected
+              onCategorySelected: _handleCategorySelected,
             ),
 
             ElevatedButton(
@@ -107,90 +126,93 @@ class _AddPageContentState extends State<AddPageContent> {
               child: Text('Select Image'),
             ),
 
-            
-            // Hiển thị ảnh được chọn
-            if (_Selectimage != null)
+            // Display the selected image
+            if (_selectedImage != null)
               Image.file(
-                _Selectimage!,
+                _selectedImage!,
                 width: 200,
                 height: 200,
               ),
-            CustomElevatedButton(text: "Add Product",
-            onPressed: _isLoading
-                ? null
-                :(){
-
-              if(_ProductController.text==""){
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Enter the product name please'),
-                    duration: Duration(seconds: 2),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-              if (_PriceController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Enter the product price please'),
-                    duration: Duration(seconds: 2),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-                return;
-              }
-
-              double? price = double.tryParse(_PriceController.text);
-              if (price == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Invalid price. Please enter a valid number.'),
-                    duration: Duration(seconds: 2),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-                return;
-              }
-
-              if ( _selectedCategory==null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Select the product category please'),
-                    duration: Duration(seconds: 2),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-                return;
-              }
-              Product new_product=new Product(productName: _ProductController.text, productDescription: _PriceController.text, price: double.parse (_PriceController.text),category: _selectedCategory);
-              if(_Selectimage!=null){
-                try {
-                  Product.addProduct(new_product, _Selectimage!);
-                  setState(() {
-                    _isLoading = false;
-                  });
+            CustomElevatedButton(
+              text: "Add Product",
+              onPressed: _isLoading
+                  ? null
+                  : () {
+                if (_productController.text == "") {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Update succes'),
-                      duration: Duration(seconds: 2),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                  clear_fields();
-
-                }
-
-                catch (e){
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Update failed'),
+                      content: Text('Enter the product name please'),
                       duration: Duration(seconds: 2),
                       backgroundColor: Colors.red,
                     ),
                   );
+                  return;
                 }
-              }
-            },),
+                if (_priceController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Enter the product price please'),
+                      duration: Duration(seconds: 2),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                double? price = double.tryParse(_priceController.text);
+                if (price == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Invalid price. Please enter a valid number.'),
+                      duration: Duration(seconds: 2),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                if (_selectedCategory == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Select the product category please'),
+                      duration: Duration(seconds: 2),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+                Product newProduct = Product(
+                  productName: _productController.text,
+                  productDescription: _descriptionController.text,
+                  price: double.parse(_priceController.text),
+                  category: _selectedCategory!,
+                );
+                if (_selectedImage != null) {
+                  try {
+                    Product.addProduct(newProduct, _selectedImage!);
+                    setState(() {
+                      _isLoading = false;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Product added successfully'),
+                        duration: Duration(seconds: 2),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    clearFields();
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Failed to add product'),
+                        duration: Duration(seconds: 2),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
           ],
         ),
       ),
@@ -198,11 +220,10 @@ class _AddPageContentState extends State<AddPageContent> {
   }
 
   Future _pickImageFromGallery() async {
-    final pickedImage =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedImage == null) return null;
     setState(() {
-      _Selectimage = File(pickedImage.path);
+      _selectedImage = File(pickedImage.path);
     });
   }
 }
@@ -210,13 +231,13 @@ class _AddPageContentState extends State<AddPageContent> {
 class ProductCategoryDropdown extends StatefulWidget {
   final void Function(String?) onCategorySelected;
 
-  const ProductCategoryDropdown({super.key, required this.onCategorySelected});
+  const ProductCategoryDropdown({Key? key, required this.onCategorySelected});
+
   @override
   _ProductCategoryDropdownState createState() => _ProductCategoryDropdownState();
 }
 
 class _ProductCategoryDropdownState extends State<ProductCategoryDropdown> {
-
   String? _selectedCategory;
   List<Category> _categories = [];
 
@@ -234,10 +255,10 @@ class _ProductCategoryDropdownState extends State<ProductCategoryDropdown> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _loadCategories();
   }
+
   void _handleCategorySelected(String? newValue) {
     setState(() {
       _selectedCategory = newValue;
@@ -245,6 +266,7 @@ class _ProductCategoryDropdownState extends State<ProductCategoryDropdown> {
     // Call the callback function to notify the parent widget
     widget.onCategorySelected(newValue);
   }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -268,8 +290,7 @@ class _ProductCategoryDropdownState extends State<ProductCategoryDropdown> {
             ),
             value: _selectedCategory,
             onChanged: (String? newValue) {
-
-              widget.onCategorySelected(newValue);
+              _handleCategorySelected(newValue);
             },
             items: _categories.map((Category category) {
               return DropdownMenuItem<String>(

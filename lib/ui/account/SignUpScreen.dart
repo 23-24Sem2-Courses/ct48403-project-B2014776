@@ -1,8 +1,12 @@
-import 'package:ct484_project/model/user.dart';
 import 'package:ct484_project/ui/account/component.dart';
 import 'package:flutter/material.dart';
 
+
+import '../../model/user.dart';
+import '../home/screens-ui.dart';
 import 'loginScreen.dart';
+
+
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
@@ -10,12 +14,13 @@ class SignUpPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+
+      ),
       body: SignUpPageContent(),
     );
   }
 }
-
 class SignUpPageContent extends StatefulWidget {
   const SignUpPageContent({super.key});
 
@@ -23,10 +28,14 @@ class SignUpPageContent extends StatefulWidget {
   _SignUpContentState createState() => _SignUpContentState();
 }
 
-class _SignUpContentState extends State<SignUpPageContent> {
-  final TextEditingController _emailSignupController = TextEditingController();
-  final TextEditingController _passwordSignupController =
-      TextEditingController();
+class _SignUpContentState extends State< SignUpPageContent> {
+  final TextEditingController _userSignupController = TextEditingController();
+
+   final TextEditingController _emailSignupController = TextEditingController();
+  final TextEditingController _passwordSignupController = TextEditingController();
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +52,7 @@ class _SignUpContentState extends State<SignUpPageContent> {
                 fontSize: 24,
                 height: 1.2,
                 fontWeight: FontWeight.w700,
+
               ),
             ),
           ),
@@ -55,20 +65,25 @@ class _SignUpContentState extends State<SignUpPageContent> {
                 fontWeight: FontWeight.w500,
                 fontFamily: "Inter",
                 letterSpacing: .3,
+
               ),
             ),
           ),
+
+
           InputFormField(
             hintText: 'Enter username',
+
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your email';
+                return 'Please enter your username';
               }
               return null;
             },
             onChanged: (value) {
               // Handle value change if needed
             },
+            controller: _userSignupController ,
           ),
           InputFormField(
             hintText: 'Enter your email',
@@ -95,11 +110,15 @@ class _SignUpContentState extends State<SignUpPageContent> {
             onChanged: (value) {
               // Handle value change if needed
             },
+            obscureText: true,
           ),
+
+
           const DividerSeparator(
             thickness: 0.5,
             height: 20.0,
             textLabel: "Or sign in with",
+
           ),
           FacebookSignInButton(
             onPressed: () {
@@ -113,7 +132,7 @@ class _SignUpContentState extends State<SignUpPageContent> {
           ),
           CustomElevatedButton(
             text: 'Sign up',
-            onPressed: _signIn,
+            onPressed: _signUp,
           ),
           Padding(
             padding: EdgeInsets.only(bottom: 60, top: 20),
@@ -130,6 +149,10 @@ class _SignUpContentState extends State<SignUpPageContent> {
                     ),
                   ),
                 ),
+
+
+
+
                 GestureDetector(
                   onTap: () {
                     // Navigate to the sign-up page or perform any action here
@@ -137,11 +160,12 @@ class _SignUpContentState extends State<SignUpPageContent> {
 
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => const LoginPage()),
+                      MaterialPageRoute(builder: (context) =>  const LoginPage()),
                     );
                   },
-                  child: const Padding(
+                  child:
+
+                 const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 4),
                     child: Text(
                       'Sign In',
@@ -151,20 +175,34 @@ class _SignUpContentState extends State<SignUpPageContent> {
                       ),
                     ),
                   ),
+
+
                 ),
+
               ],
             ),
           ),
+
         ],
       ),
     );
   }
 
-  void _signIn() {
-    String password_mock = "12345";
-    String email_mock = "minhphuong@gmail.com";
+  Future<void> _signUp() async {
+
     String email = _emailSignupController.text;
     String password =  _passwordSignupController.text;
+    String username= _userSignupController.text;
+    if (username.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Username cannot be empty!'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return; // Stop execution if email or password is empty
+    }
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -185,22 +223,60 @@ class _SignUpContentState extends State<SignUpPageContent> {
       );
       return; // Stop execution if email or password is empty
     }
-    if (password == password_mock && email == email_mock) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sign up success'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sign up failed'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+    try{
+
+      bool check = await signUpUser(username,email,password);
+      if (check==true){
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(' Sign up success'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+      }
+
+
+
     }
+    catch (e){
+      if (e.toString().contains('duplicate key error collection: mobile.users index: email_1')) {
+        // Username already exists
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Email is already taken! Please choose another one.'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      else   if (e.toString().contains('duplicate key error collection: mobile.users index: username_1 dup key')) {
+        // Username already exists
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Username is already taken! Please choose another one.'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      else {
+        // Other error occurred
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sign up failed  '),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
+    }
+
   }
-}
+
+
+

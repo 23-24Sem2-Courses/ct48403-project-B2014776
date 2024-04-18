@@ -1,28 +1,22 @@
-import 'package:ct484_project/ui/account/SignUpScreen.dart';
-import 'package:ct484_project/ui/account/component.dart';
-import 'package:ct484_project/ui/admin/admin.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../model/user.dart';
+import '../admin/admin.dart';
 import '../home/screens-ui.dart';
-
-
-
+import 'SignUpScreen.dart';
+import 'component.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-
-      ),
+      appBar: AppBar(),
       body: LoginPageContent(),
     );
   }
 }
+
 class LoginPageContent extends StatefulWidget {
   const LoginPageContent({Key? key}) : super(key: key);
 
@@ -31,10 +25,10 @@ class LoginPageContent extends StatefulWidget {
 }
 
 class _LoginPageContentState extends State<LoginPageContent> {
-  final TextEditingController _emailController =TextEditingController();
-  final TextEditingController _passwordController =TextEditingController();
-
-
+  bool _obscurePassword = true; // Trạng thái che mật khẩu
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _loading = false; // Trạng thái hiển thị tiện ích tải
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +79,7 @@ class _LoginPageContentState extends State<LoginPageContent> {
               }
               return null;
             },
+            obscureText: _obscurePassword,
             onChanged: (value) {
               // Handle value change if needed
             },
@@ -126,11 +121,10 @@ class _LoginPageContentState extends State<LoginPageContent> {
                 ),
                 TextButton(
                   onPressed: () {
-
                     // Navigate to the sign-up page replacing the current page
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) =>const SignUpPage()),
+                      MaterialPageRoute(builder: (context) => const SignUpPage()),
                     );
                   },
                   child: const Padding(
@@ -147,85 +141,86 @@ class _LoginPageContentState extends State<LoginPageContent> {
               ],
             ),
           ),
+          // Hiển thị tiện ích tải nếu đang chờ API
+          if (_loading) CircularProgressIndicator(),
         ],
       ),
     );
   }
 
-  Future<void> _signIn () async {
-
-    if (!mounted) {
-      // The widget is disposed, do not proceed
-      return;
-    }
-    String email = _emailController.text;
-    String password = _passwordController.text;
-    if (email.isEmpty) {
+  Future<void> _signIn() async {
+    if (_loading) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Email cannot be empty!'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return; // Stop execution if email or password is empty
-    }
-    if (password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password cannot be empty!'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return; // Stop execution if email or password is empty
-    }
-    try {
-      // Call the loginUser function
-      Map<String, dynamic> loginData = await loginUser(email, password);
-      String role=loginData["user"]["role"].toString();
-      if(role=="admin"){
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login succes'),
-            duration: Duration(seconds: 2),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => AdminList()),
-        );
-        return;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login succes'),
+        SnackBar(
+          content: Text('Login successful'),
           duration: Duration(seconds: 2),
           backgroundColor: Colors.green,
         ),
       );
+      return; // Đang chờ API, không thực hiện hành động mới
+    }
 
+    String email = _emailController.text;
+    String password = _passwordController.text;
 
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => Screens()),
-      );
-
-
-
-
-    } catch (e) {
-      // Handle errors or exceptions
+    if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Login failed: $e'),
+          content: Text(email.isEmpty ? 'Email cannot be empty!' : 'Password cannot be empty!'),
           duration: Duration(seconds: 2),
           backgroundColor: Colors.red,
         ),
       );
+      return; // Stop execution if email or password is empty
+    }
 
+    try {
+      setState(() {
+        _loading = true; // Bắt đầu hiển thị tiện ích tải
+      });
+
+      // Call the loginUser function
+      Map<String, dynamic> loginData = await loginUser(email, password);
+      String role = loginData["user"]["role"].toString();
+
+      if (role == "admin") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login successful'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => AdminList()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login successful'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => Screens()),
+        );
+      }
+    } catch (e) {
+      // Handle errors or exceptions
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Login failed email or password are not match:'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _loading = false; // Tắt tiện ích tải khi kết thúc quá trình
+      });
     }
   }
 }
-
-

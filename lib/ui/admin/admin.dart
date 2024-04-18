@@ -1,13 +1,10 @@
-import 'package:ct484_project/ui/account/component.dart';
-import 'package:ct484_project/ui/account/loginScreen.dart';
-import 'package:ct484_project/ui/admin/adminListcard.dart';
-import 'package:ct484_project/ui/bottombar.dart';
-import 'package:ct484_project/ui/home/Appbar.dart';
-import 'package:ct484_project/ui/home/product/productList.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../model/user.dart';
+import '../account/component.dart';
+import '../account/loginScreen.dart';
 import 'addproduct.dart';
+import 'adminListcard.dart';
 
 class AdminList extends StatelessWidget {
   @override
@@ -15,8 +12,7 @@ class AdminList extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        titleSpacing:
-            0, // Loại bỏ khoảng cách giữa tiêu đề và các phần tử bên cạnh
+        titleSpacing: 0,
         title: Row(
           children: [
             Padding(
@@ -24,50 +20,64 @@ class AdminList extends StatelessWidget {
               child: Image.asset(
                 'assets/header-images/logo.jpg',
                 width: 120,
-                height: 44, // Đặt chiều cao của ảnh là 44
-                fit: BoxFit.contain, // Đảm bảo ảnh vừa với chiều cao của AppBar
+                height: 44,
+                fit: BoxFit.contain,
               ),
             ),
-            Spacer(), // Tạo khoảng trống linh hoạt giữa các phần tử
+            Spacer(),
             IconButton(
               icon: Image.asset(
                 'assets/header-images/logout.png',
-                width: 30, // Đặt chiều rộng của icon
-                height: 30, // Đặt chiều cao của icon
-
+                width: 30,
+                height: 30,
               ),
-
               onPressed: () {
-                logout();
-                // Chuyển hướng sang một trang khác khi nhấn vào icon "edit"
+                // Logout action
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => LoginPage()),
                 );
-
-                // Xử lý sự kiện khi nhấn vào icon link
               },
             ),
           ],
         ),
-        toolbarHeight: 44.0, // Đặt chiều cao cho toolbar của AppBar
+        toolbarHeight: 44.0,
       ),
-      body: Container(
-        child: Column(
-          children: [
-            Expanded(
-              child: AdminListCard(), // Sử dụng CartList ở đây
-            ),
-            CustomElevatedButton(text: "Add Product", onPressed:(){
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddProduct()),
-              );
-            }
-            ),
-          ],
+      body: RefreshIndicator(
+        onRefresh: () {
+          // Handle refresh action here
+          // You can reload data or perform any other necessary operations
+          return Future.delayed(Duration(seconds: 1), () {
+            // Return a Future to indicate when refreshing is complete
+            // Trigger the refresh of AdminListCard
+            _adminListCardKey.currentState?.reloadData();
+          });
+        },
+        child: Container(
+          child: Column(
+            children: [
+              Expanded(
+                child: AdminListCard(
+                  key: _adminListCardKey, // Assign a GlobalKey to AdminListCard
+                ),
+              ),
+              CustomElevatedButton(
+                text: "Add Product",
+                onPressed: () {
+                  // Navigate to AddProduct screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AddProduct()),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
+// Define a GlobalKey for AdminListCard
+final GlobalKey<AdminListCardState> _adminListCardKey = GlobalKey();

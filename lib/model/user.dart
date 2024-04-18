@@ -92,7 +92,7 @@ Future<void> logout() async {
 
 }
 
-Future<Map<String, dynamic>> signUpUser(
+Future<bool> signUpUser(
     String username, String email, String password) async {
   const apiUrl =
       "https://mobile-backend-v1.onrender.com/api/v1/users";
@@ -101,22 +101,15 @@ Future<Map<String, dynamic>> signUpUser(
       Uri.parse(apiUrl),
       body: jsonEncode({"username": username, "email": email, "password": password}),
       headers: {'Content-Type': 'application/json'},
-    ).timeout(Duration(seconds: 10)); // Add timeout for the request
-
+    );
     if (response.statusCode == 201) {
-      Map<String, dynamic> responseData = jsonDecode(response.body);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token_login', responseData['token']);
-      await prefs.setString('user', jsonEncode(responseData['user']));
-      return {
-        'user': User.fromJson(responseData['user']),
-        'token': responseData['token'],
-      };
+      return true;
+
     } else {
       throw Exception('Failed to sign up: ${response.body}');
     }
   } catch (e) {
-    print('Error: $e');
+
     throw Exception('Failed to sign up: $e');
   }
 }

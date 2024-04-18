@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:ct484_project/model/product.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 String API_BASE_URL="https://mobile-backend-latest.onrender.com/api/v1";
 class Cart {
   final String id;
@@ -44,11 +45,18 @@ class Cart {
     }
   }
 
-  static Future<Cart> addToCart(String userId, String productId, String quantity) async {
-    final apiUrl = '$API_BASE_URL/cart/${userId.toString()}';
-    print(apiUrl);// Replace with your API endpoint
+  static Future<void> addToCart( String productId, String quantity) async {
+
+
+
     try {
-      print('productId: $productId');
+      final prefs = await SharedPreferences.getInstance();
+      String? userDataString = prefs.getString('user');
+      if(userDataString!=null){
+      Map<String, dynamic> userData = jsonDecode(userDataString);
+      String userId=userData['_id'];
+      final apiUrl = '$API_BASE_URL/cart/${userId.toString()}';
+
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
@@ -57,34 +65,48 @@ class Cart {
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
-        return Cart.fromJson(jsonData);
+        return ;
       } else {
         throw Exception('Failed to add to cart: ${response.statusCode}  ${response.body}');
       }
+      }
+
+
+
     } catch (e) {
       throw Exception('Failed to add to cart: $e');
     }
   }
 
 
-  static Future<Cart> RemoveFromCart(String userId, String productId,) async {
+  static Future<void> RemoveFromCart( String productId,) async {
     final apiUrl = '$API_BASE_URL/cart/products';
 
     print(apiUrl);// Replace with your API endpoint
     try {
-      print('productId: $productId');
-      final response = await http.delete(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'userId': userId, 'productId': productId}),
-      );
 
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        return Cart.fromJson(jsonData);
-      } else {
-        throw Exception('Failed to delete to cart: ${response.statusCode}  ${response.body}');
+      final prefs = await SharedPreferences.getInstance();
+      String? userDataString = prefs.getString('user');
+
+      if(userDataString!=null){
+        Map<String, dynamic> userData = jsonDecode(userDataString);
+        String userId=userData['_id'];
+        final response = await http.delete(
+          Uri.parse(apiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'userId': userId, 'productId': productId}),
+        );
+        if (response.statusCode == 200) {
+          final jsonData = jsonDecode(response.body);
+          return ;
+        } else {
+          throw Exception('Failed to delete to cart: ${response.statusCode}  ${response.body}');
+
+        }
+
       }
+
+
     } catch (e) {
       throw Exception('Failed to delete to cart: $e');
     }
@@ -106,15 +128,31 @@ class Cart {
     }
   }
 
-  static Future<Cart> getUserCart(String userId) async {
-    final url = Uri.parse('$API_BASE_URL/cart/$userId');
-    final response = await http.get(url);
+  static Future<Cart> getUserCart() async {
 
-    if (response.statusCode == 200) {
-      return Cart.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to get user cart: ${response.statusCode}');
+    final prefs = await SharedPreferences.getInstance();
+    String? userDataString = prefs.getString('user');
+    if(userDataString!=null){
+
+      Map<String, dynamic> userData = jsonDecode(userDataString);
+      String userId=userData['_id'];
+      final url = Uri.parse('$API_BASE_URL/cart/$userId');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        return Cart.fromJson(jsonDecode(response.body));
+      } else {
+        throw Exception('Failed to get user cart: ${response.statusCode}');
+      }
     }
+    else{
+
+      throw Exception('Failed to get user cart: should login before');
+    }
+
+
+
+
   }
 
   // Add other methods like removeFromCart, clearCart, and getUserCart similarly
